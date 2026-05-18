@@ -1,0 +1,13 @@
+{
+  "name": "daily-band-voicetalk",
+  "version": "1.0.0",
+  "description": "데일리 밴드 실시간 보이스톡 서버",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

@@ -2,525 +2,272 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>데일리 밴드 (Daily Band) V7.2</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="/socket.io/socket.io.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Band (데일리 밴드)</title>
     <style>
         :root {
-            --bg-color: #f5f7fb;
-            --surface-color: #ffffff;
-            --primary-color: #222222;
-            --accent-color: #ff3b30;
-            --brand-blue: #007aff;
-            --brand-green: #34c759;
-            --brand-yellow: #fff3bf;
-            --brand-yellow-border: #fab005;
-            --text-color: #2d3142;
-            --text-muted: #8c92ac;
+            --brand-blue: #3366ff;
+            --brand-green: #00e676;
+            --brand-yellow: #fffdb5;
+            --brand-yellow-border: #ffd740;
             --border-color: #e4e9f2;
-            --whisper-color: #ff9500;
+            --bg-color: #f7f9fc;
+            --danger-color: #ff4d4f;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--text-color); overflow: hidden; position: relative; height: 100vh; }
-
-        /* 로딩 스플래시 */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-        #splash-screen.fade-out { opacity: 0; pointer-events: none; }
-        .logo-animation {
-            width: 100px; height: 100px; border: 4px solid var(--brand-blue); border-radius: 50%;
-            display: flex; justify-content: center; align-items: center; font-size: 38px;
-            animation: pulse 1.5s infinite alternate; background: #fff;
-        }
-        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 10px rgba(0,122,255,0.2); } 100% { transform: scale(1.05); box-shadow: 0 0 25px rgba(0,122,255,0.4); } }
-
-        /* 로그인 스크린 */
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color);
-            display: flex; flex-direction: column; justify-content: center; padding: 25px; z-index: 9998;
-        }
-        #login-screen.hidden { display: none; }
-        .login-box { background: var(--surface-color); padding: 50px 25px; border-radius: 24px; border: 1px solid var(--border-color); text-align: center; box-shadow: 0 10px 30px rgba(140,146,172,0.15); }
-        .login-box h2 { margin-bottom: 30px; font-size: 26px; font-weight: 700; color: var(--brand-blue); letter-spacing: 2px; }
-
-        input[type="text"], input[type="password"], input[type="date"], textarea {
-            width: 100%; padding: 12px 16px; margin-bottom: 12px; border-radius: 12px; 
-            border: 1px solid #dbe2ef; background: #f9fbfd; color: var(--primary-color); 
-            font-size: 14px; outline: none;
-        }
-        input:focus, textarea:focus { border-color: var(--brand-blue); background: #ffffff; }
-
-        .btn-submit { 
-            width: 100%; padding: 15px; border: none; border-radius: 14px; 
-            background: linear-gradient(135deg, var(--brand-blue), #0056b3); color: #fff; 
-            font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,122,255,0.3);
-            margin-top: 10px;
-        }
-
-        /* 구조 및 레이아웃 */
-        #app-container { display: flex; flex-direction: column; height: 100vh; }
-        header { background: var(--surface-color); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
-        header h1 { font-size: 18px; font-weight: 700; color: var(--brand-blue); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: var(--bg-color); padding: 20px; color: #222; }
+        h2, h3, h4 { margin-bottom: 10px; }
+        hr { margin: 20px 0; border: 0; border-top: 1px solid var(--border-color); }
         
-        .header-right { display: flex; align-items: center; gap: 10px; }
-        .role-badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; background: #edf2f9; color: #4f5e7b; }
-        .role-badge.admin { background: linear-gradient(135deg, var(--accent-color), #cc1111); color: #fff; }
-        .btn-logout { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; }
-
-        main { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 95px; }
-        .page { display: none; }
+        /* 내비게이션 및 페이지 */
+        .nav-bar { display: flex; gap: 10px; margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .nav-item { padding: 10px 15px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        .nav-item.active { background: var(--brand-blue); color: #fff; }
+        .page { display: none; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .page.active { display: block; }
 
-        /* 하단 네비게이션 */
-        nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface-color); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; z-index: 900; box-shadow: 0 -4px 12px rgba(0,0,0,0.03); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; text-decoration: none; cursor: pointer; gap: 4px; font-weight: 500; }
-        .nav-item.active { color: var(--brand-blue); }
+        /* 보이스톡 바 */
+        #voicetalk-active-bar { display: none; background: #222; color: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .gauge-container { background: #444; width: 100%; height: 10px; border-radius: 5px; margin-top: 8px; overflow: hidden; }
+        #mic-bar { background: var(--brand-green); width: 0%; height: 100%; transition: width 0.05s ease; }
 
-        /* 카드 컴포넌트 */
-        .card { background: var(--surface-color); border-radius: 20px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--border-color); position: relative; box-shadow: 0 4px 12px rgba(140,146,172,0.06); }
-        .card-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: #1e2229; }
-        
-        .btn-action { background: #f0f4f9; border: 1px solid #e2e8f0; color: #4a5568; padding: 8px 14px; border-radius: 10px; font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; }
-        
-        .admin-only { display: none !important; }
-        body.is-admin .admin-only { display: block !important; }
-        body.is-admin .admin-inline-only { display: inline-flex !important; }
-
-        .fab { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; background: var(--brand-blue); color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 14px rgba(0,122,255,0.4); cursor: pointer; z-index: 800; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal.active { display: flex; }
-        .modal-content { background: var(--surface-color); border-radius: 24px; padding: 24px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
-        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; }
-        .modal-buttons button { padding: 12px 20px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
-
-        /* 달력 관련 */
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-bottom: 15px; }
-        .calendar-day-label { font-size: 11px; color: var(--text-muted); font-weight: 700; padding-bottom: 5px; }
-        .calendar-day { padding: 4px 2px; height: 68px; font-size: 13px; border-radius: 12px; background: #f8fafc; cursor: pointer; position: relative; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border: 1px solid transparent; transition: all 0.2s; overflow: hidden; }
-        .calendar-day.has-official-event { background: var(--brand-yellow) !important; border: 1px solid var(--brand-yellow-border) !important; font-weight: 700; }
-        .calendar-day.selected { border-color: var(--brand-blue); box-shadow: inset 0 0 0 1.5px var(--brand-blue); }
-        .official-badge-inline { font-size: 9px; color: #cc7a00; font-weight: 800; margin-top: 1px; background: rgba(251,192,45,0.4); padding: 1px 3px; border-radius: 4px; text-align: center; width: 90%; }
-        
-        .absent-list-inline { font-size: 8.5px; color: var(--brand-green); font-weight: bold; text-align: center; margin-top: 2px; width: 92%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(52,199,89,0.1); padding: 1px 2px; border-radius: 4px; }
-        .calendar-voters-inline { font-size: 9px; color: var(--brand-blue); font-weight: bold; max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; background: rgba(0,122,255,0.06); padding: 1px 2px; border-radius: 4px; text-align: center; }
-
-        /* 채팅 및 실시간 보이스톡 룸 */
-        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 165px); position: relative; }
-        .chat-header-tools { display: flex; gap: 6px; margin-bottom: 6px; }
-        .chat-notice-pinned { flex: 1; background: #fff9db; border: 1px solid #ffe066; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; color: #f59f00; }
-        
-        /* 📞 실시간 보이스톡 UI 컴포넌트 */
-        .voicetalk-bar { background: #e6ffed; border: 1px solid #bbf7d0; padding: 10px 14px; border-radius: 14px; font-size: 12.5px; display: none; align-items: center; justify-content: space-between; margin-bottom: 8px; color: #15803d; font-weight: bold; animation: fadeIn 0.3s ease; }
-        .vt-pulse { width: 8px; height: 8px; background: var(--brand-green); border-radius: 50%; animation: vtPulse 1s infinite alternate; }
-        @keyframes vtPulse { from { transform: scale(0.8); opacity: 0.5; } to { transform: scale(1.3); opacity: 1; } }
-        .mic-meter-container { width: 60px; height: 6px; background: #d1fae5; border-radius: 3px; overflow: hidden; position: relative; }
-        .mic-meter-bar { width: 0%; height: 100%; background: var(--brand-green); transition: width 0.1s ease; }
-
-        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; }
-        .chat-date-line { text-align: center; margin: 10px 0; font-size: 11px; color: var(--text-muted); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .chat-date-line::before, .chat-date-line::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
-
-        .chat-bubble-row { display: flex; flex-direction: column; max-width: 85%; }
+        /* 채팅 UI */
+        #chat-box { height: 300px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .chat-date-line { text-align: center; font-size: 11px; color: #888; margin: 5px 0; }
+        .chat-bubble-row { display: flex; flex-direction: column; max-width: 70%; }
         .chat-bubble-row.mine { align-self: flex-end; align-items: flex-end; }
         .chat-bubble-row.other { align-self: flex-start; align-items: flex-start; }
-        .chat-main-block { display: flex; align-items: flex-end; gap: 6px; width: 100%; }
-        .chat-bubble-row.mine .chat-main-block { flex-direction: row-reverse; }
+        .chat-sender { font-size: 12px; color: #555; margin-bottom: 2px; cursor: pointer; }
+        .chat-main-block { display: flex; gap: 5px; }
+        .chat-bubble { padding: 8px 12px; border-radius: 12px; font-size: 14px; }
+        .chat-bubble.mine { background: var(--brand-blue); color: #fff; }
+        .chat-bubble.other { background: #eee; color: #222; }
+        .chat-bubble.whisper { border: 2px dashed #9c27b0; }
+        .chat-bubble.whisper-mine { background: #f3e5f5; color: #9c27b0; }
+        .chat-bubble.system { align-self: center; background: #e4e9f2; color: #666; font-size: 12px; border-radius: 4px; padding: 4px 8px; }
+        .chat-read-receipt { font-size: 10px; color: #ff3d00; align-self: flex-end; }
+        #whisper-tag { display: none; background: #f3e5f5; color: #9c27b0; padding: 6px; border-radius: 4px; font-size: 12px; margin-bottom: 5px; cursor: pointer; }
 
-        .chat-bubble { padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.45; word-break: break-all; }
-        .chat-bubble.mine { background: var(--brand-blue); color: #fff; border-bottom-right-radius: 2px; }
-        .chat-bubble.other { background: #ffffff; color: var(--text-color); border-bottom-left-radius: 2px; border: 1px solid var(--border-color); }
-        .chat-bubble.whisper { background: #fff3e0 !important; color: #e65100 !important; border: 1px dashed var(--whisper-color) !important; }
-        .chat-bubble.whisper-mine { background: var(--whisper-color) !important; color: #fff !important; }
+        /* 달력 UI */
+        #calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 15px; }
+        .calendar-day-label { text-align: center; font-weight: bold; padding: 5px; background: #e4e9f2; border-radius: 4px; font-size: 12px; }
+        .calendar-day { border: 1px solid var(--border-color); min-height: 70px; padding: 4px; border-radius: 6px; cursor: pointer; position: relative; }
+        .calendar-day.selected { border-color: var(--brand-blue); background: #f0f4ff; }
+        .calendar-day.has-official-event { background: #fffde7; }
+        .official-badge-inline { background: #ffd740; font-size: 10px; padding: 2px; border-radius: 3px; font-weight: bold; text-align: center; margin-top: 2px; }
+        .absent-list-inline { background: #ffcdd2; color: #c62828; font-size: 9px; padding: 1px; border-radius: 2px; text-align: center; margin-top: 2px; }
+        .calendar-voters-inline { color: var(--brand-blue); font-size: 9px; text-align: center; margin-top: 2px; word-break: break-all; }
 
-        .chat-read-receipt { font-size: 10px; color: #ff9500; font-weight: bold; margin-bottom: 2px; }
-        .chat-sender { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; cursor: pointer; }
-
-        .chat-control-panel { display: none; gap: 6px; margin-top: 4px; }
-        .chat-control-panel.active { display: flex; }
-        .btn-inline-ctrl { background: #ffffff; border: 1px solid var(--border-color); font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn-inline-ctrl.delete { color: var(--accent-color); }
-
-        .chat-input-area { display: flex; flex-direction: column; gap: 4px; padding-top: 10px; }
-        .chat-input-row { display: flex; gap: 8px; }
-
-        /* 어드민 명부 테이블 */
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12.5px; }
-        .admin-table th, .admin-table td { padding: 10px 8px; border-bottom: 1px solid var(--border-color); text-align: left; }
-        .table-inline-input { width: 100%; padding: 4px 6px; border-radius: 4px; border: 1px solid var(--brand-blue); outline: none; }
-        .adm-manage-btn { background: #edf2f9; border: 1px solid #ced4da; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; }
-        .adm-manage-btn.save { background: #e6ffed; color: #15803d; border-color: #bbf7d0; }
-        .adm-manage-btn.delete { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
-
-        .dday-badge { background: #ffebee; color: var(--accent-color); padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; }
-        .whisper-indicator { display: none; background: var(--whisper-color); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: bold; margin-bottom: 4px; }
+        /* 테이블 및 일반 입력 폼 */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid var(--border-color); padding: 8px; text-align: center; font-size: 13px; }
+        th { background: #f1f3f5; }
+        input, select, button { padding: 6px 10px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #e4e9f2; cursor: pointer; border: none; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+        .btn-action { background: var(--brand-blue); color: #fff; }
+        .btn-danger { background: var(--danger-color); color: #fff; }
+        
+        /* 피드 인라인 카드 */
+        .card { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .card-title { font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        
+        /* 모달 오버레이 */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background:#fff; padding:20px; border-radius:12px; width:90%; max-width:400px; }
+        
+        /* 직접 입력인풋 스타일 */
+        .inline-edit-input { width: 90px; text-align: center; padding: 2px 4px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen">
-        <div class="logo-animation">🥁</div>
-        <div class="splash-title">DAILY BAND</div>
+    <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; font-weight: bold;">
+        📢 <span id="pinned-notice-text">상단 고정 공지사항이 비어있습니다.</span>
     </div>
 
-    <div id="login-screen" class="hidden">
-        <div class="login-box">
-            <h2>DAILY BAND</h2>
-            <input type="text" id="login-id" placeholder="아이디">
-            <input type="password" id="login-pw" placeholder="비밀번호">
-            <button class="btn-submit" onclick="handleLogin()">로그인</button>
+    <div id="voicetalk-active-bar">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>🎙️ 실시간 보이스톡 작동 중... (<span id="vt-timer">00:00</span>)</span>
+            <button class="btn-danger" onclick="stopVoiceTalk()">통화 종료</button>
+        </div>
+        <div class="gauge-container"><div id="mic-bar"></div></div>
+        <audio id="remote-audio" autoplay></audio>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchPage('feed')">홈피드</div>
+        <div class="nav-item" onclick="switchPage('chat')">채팅방</div>
+        <div class="nav-item" onclick="switchPage('calendar')">합주달력</div>
+        <div class="nav-item" onclick="switchPage('vote')">선곡투표</div>
+        <div class="nav-item" onclick="switchPage('profile')">마이프로필</div>
+        <div class="nav-item" onclick="switchPage('admin')">관리자 패널</div>
+    </div>
+
+    <div id="page-feed" class="page active">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3>밴드부 피드 소식</h3>
+            <button class="btn-action" id="global-fab" onclick="openModal()">📝 새 글 작성</button>
+        </div>
+        <div id="feed-list"></div>
+    </div>
+
+    <div id="page-chat" class="page">
+        <h3>밴드부 메인 채팅방</h3>
+        <div id="chat-box"></div>
+        <div id="whisper-tag"></div>
+        <div style="display:flex; gap:6px;">
+            <input type="text" id="chat-input" style="flex:1;" placeholder="메시지를 입력하세요... (부원 클릭 시 귓속말)" onkeypress="if(event.key==='Enter') sendChat()">
+            <button class="btn-action" onclick="sendChat()">전송</button>
         </div>
     </div>
 
-    <div id="app-container">
-        <header>
-            <h1>DAILY BAND</h1>
-            <div class="header-right">
-                <div id="user-tag" class="role-badge">조회중...</div>
-                <button class="btn-logout" onclick="handleLogout()"><span class="material-icons">logout</span></button>
-            </div>
-        </header>
-
-        <main id="main-content">
-            <section id="page-feed" class="page active">
-                <div class="card" style="background: linear-gradient(135deg, #fff5f5, #ffffff); border-color: #ffa8a8;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:700; font-size:13px; color:var(--accent-color);"><span class="material-icons" style="font-size:16px; vertical-align:middle;">workspace_premium</span> 가을 대형 정기 연합 축제</span>
-                        <span class="dday-badge" id="live-dday-counter">D-45</span>
-                    </div>
-                    <p style="font-size:13px; font-weight:500; margin-top:6px; color:#334155; padding-left:20px;">일시: 2026년 07월 02일 목요일 무대 예정</p>
-                </div>
-                <div id="feed-list"></div>
-            </section>
-
-            <section id="page-calendar" class="page">
-                <div class="card">
-                    <div class="card-title">📅 5월 정기 합주 캘린더</div>
-                    <div class="calendar-grid" id="calendar-grid"></div>
-                    <div id="selected-date-events"></div>
-                </div>
-                <div class="card admin-only">
-                    <div class="card-title" style="color:var(--brand-blue);">⚡ 정식 합주 스케줄 발령 (부장용)</div>
-                    <input type="text" id="event-title" placeholder="합주곡 세션 명칭">
-                    <input type="date" id="event-date">
-                    <input type="text" id="event-time" placeholder="합주 시간 (예: 17:00 ~ 19:00)">
-                    <button class="btn-action" style="width:100%; justify-content:center; background:var(--brand-blue); color:#fff; border:none;" onclick="addCalendarEvent()">정식 합주 등록</button>
-                </div>
-            </section>
-
-            <section id="page-vote" class="page">
-                <div class="card">
-                    <div class="card-title">🎸 다음 정기 합주곡 라인업 투표</div>
-                    <div id="vote-list"></div>
-                </div>
-                <div class="card">
-                    <div class="card-title">➕ 새로운 경연 선곡 후보 제안</div>
-                    <input type="text" id="vote-title-input" placeholder="카피곡 명">
-                    <input type="text" id="vote-artist-input" placeholder="원곡 아티스트">
-                    <button class="btn-action" style="width:100%; justify-content:center; background:var(--brand-blue); color:#fff; border:none;" onclick="addVoteItem()">투표지 등록</button>
-                </div>
-            </section>
-
-            <section id="page-chat" class="page">
-                <div class="chat-container">
-                    <div class="chat-header-tools">
-                        <div class="chat-notice-pinned">
-                            <span class="material-icons" style="font-size:16px;">campaign</span>
-                            <div id="pinned-notice-text" style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">공지사항이 지정되지 않았습니다.</div>
-                        </div>
-                        <button class="btn-action" style="background:var(--brand-green); color:#fff; border:none;" onclick="startVoiceTalk()"><span class="material-icons" style="font-size:16px;">phone</span> 보이스톡</button>
-                    </div>
-
-                    <div class="voicetalk-bar" id="voicetalk-active-bar">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <div class="vt-pulse"></div>
-                            <span>보이스톡 통화 중... (<span id="vt-timer">00:00</span>)</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <div class="mic-meter-container"><div class="mic-meter-bar" id="mic-bar"></div></div>
-                            <button class="btn-action" style="background:var(--accent-color); color:#fff; border:none; padding:4px 8px; font-size:11px;" onclick="stopVoiceTalk(true)">종료</button>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-messages" id="chat-box"></div>
-                    
-                    <div class="chat-input-area">
-                        <div class="whisper-indicator" id="whisper-tag"></div>
-                        <div class="chat-input-row">
-                            <input type="text" id="chat-input" placeholder="소통 메시지 입력... (상대 이름 클릭 시 귓속말)" onkeypress="if(event.key==='Enter') sendChat()">
-                            <button class="btn-action" onclick="sendChat()" style="background:var(--brand-blue); color:#fff; border:none; padding:0 18px;"><span class="material-icons">send</span></button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="page-promo" class="page">
-                <div class="card" style="text-align: center; padding: 40px 20px;">
-                    <div style="font-size:48px; margin-bottom:15px;">🔗</div>
-                    <h3>외부 인스타그램 홍보 초대장</h3>
-                    <p style="color:var(--text-muted); font-size:13px; margin-bottom:25px;">달력에 일정이 실존해야 복사 발급됩니다.</p>
-                    <button class="btn-action" style="margin:0 auto; background:var(--brand-blue); color:#fff; border:none;" onclick="shareInvitation()">초대장 복사 발급</button>
-                </div>
-            </section>
-
-            <section id="page-profile" class="page">
-                <div class="card">
-                    <div class="card-title">👤 내 크루 프로필 셋업</div>
-                    <label style="font-size:12px; color:var(--text-muted); font-weight:bold;">담당 악기 포지션</label>
-                    <input type="text" id="mp-part">
-                    <label style="font-size:12px; color:var(--text-muted); font-weight:bold;">비밀번호 갱신</label>
-                    <input type="password" id="mp-pw">
-                    <button class="btn-action" style="width:100%; justify-content:center; background:#222; color:#fff;" onclick="updateMyProfile()">프로필 보관</button>
-                </div>
-
-                <div class="card admin-only" style="border-color: #fab005; background: #fffdf5;">
-                    <div class="card-title" style="color: #b78103;"><span class="material-icons" style="font-size:18px; vertical-align:middle;">campaign</span> 대화방 상단 고정 공지사항 편집기</div>
-                    <textarea id="adm-notice-input" rows="2" placeholder="대화방 상단에 실시간 팝업할 공지를 작성하세요."></textarea>
-                    <div style="display:flex; gap:6px;">
-                        <button class="btn-action" style="flex:1; background:var(--brand-blue); color:#fff; border:none;" onclick="updateGlobalNotice()">공지 적용하기</button>
-                        <button class="btn-action" style="background:var(--accent-color); color:#fff; border:none;" onclick="deleteGlobalNotice()">공지 초기화</button>
-                    </div>
-                </div>
-
-                <div class="card admin-only" style="border-color: var(--accent-color);">
-                    <div class="card-title" style="color:var(--accent-color);">🛡️ 마스터 전용 전체 단원 정보 편집소</div>
-                    <div style="background:#fcf1f1; padding:14px; border-radius:14px; margin-bottom:15px;">
-                        <h4 style="font-size:13px; margin-bottom:10px;">🆕 신규 단원 계정 발급</h4>
-                        <input type="text" id="adm-new-id" placeholder="아이디">
-                        <input type="password" id="adm-new-pw" placeholder="초기 비밀번호">
-                        <input type="text" id="adm-new-name" placeholder="단원 본명">
-                        <button class="btn-action" style="width:100%; justify-content:center; background:var(--accent-color); color:#fff; border:none;" onclick="createUserByAdmin()">데이터베이스 즉시 추가</button>
-                    </div>
-                    
-                    <h4 style="font-size:13px; margin-bottom:6px;">📋 전용 크루 명부</h4>
-                    <div style="overflow-x: auto;">
-                        <table class="admin-table">
-                            <thead>
-                                <tr><th>성명</th><th>아이디</th><th>비밀번호</th><th>동작</th></tr>
-                            </thead>
-                            <tbody id="admin-user-log"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <div class="fab" id="global-fab" onclick="openModal()"><span class="material-icons">add_comment</span></div>
-
-        <nav>
-            <div class="nav-item active" onclick="switchPage('feed')"><span class="material-icons">dashboard</span>피드방</div>
-            <div class="nav-item" onclick="switchPage('calendar')"><span class="material-icons">today</span>합주스케줄</div>
-            <div class="nav-item" onclick="switchPage('vote')"><span class="material-icons">thumbs_up_down</span>곡투표</div>
-            <div class="nav-item" onclick="switchPage('chat')"><span class="material-icons">forum</span>대화방</div>
-            <div class="nav-item" onclick="switchPage('promo')"><span class="material-icons">rocket_launch</span>공연홍보</div>
-            <div class="nav-item" onclick="switchPage('profile')"><span class="material-icons">settings</span>마이/관제</div>
-        </nav>
+    <div id="page-calendar" class="page">
+        <h3>5월 합주 스케줄</h3>
+        <div id="calendar-grid"></div>
+        <div id="selected-date-events" style="margin-top:15px; padding:12px; background:#f8f9fa; border-radius:8px;"></div>
     </div>
 
-    <div class="modal" id="feed-modal">
+    <div id="page-vote" class="page">
+        <h3>연습 곡 & 선곡 후보 목록</h3>
+        <div id="vote-list" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
+    </div>
+
+    <div id="page-profile" class="page">
+        <h3>내 프로필 정보 설정</h3>
+        <div style="display:flex; flex-direction:column; gap:10px; max-width:300px; margin-top:15px;">
+            <label>배정 세션: <input type="text" id="mp-part"></label>
+            <label>비밀번호 변경: <input type="password" id="mp-pw"></label>
+            <button class="btn-action" onclick="updateMyProfile()">정보 수정 동기화</button>
+        </div>
+    </div>
+
+    <div id="page-admin" class="page">
+        <h3>👑 부장 권한 제어 센터</h3>
+        
+        <div style="background:#f1f3f5; padding:12px; border-radius:8px; margin-bottom:15px;">
+            <h4>메인 상단 공지 제어</h4>
+            <input type="text" id="adm-notice-input" style="width:60%;" placeholder="교체할 공지 내용 입력">
+            <button class="btn-action" onclick="updateGlobalNotice()">공지 등록</button>
+            <button class="btn-danger" onclick="deleteGlobalNotice()">공지 철거</button>
+        </div>
+
+        <div style="background:#f1f3f5; padding:12px; border-radius:8px; margin-bottom:15px;">
+            <h4>신규 부원 계정 발급</h4>
+            <input type="text" id="adm-new-id" placeholder="아이디(학번)">
+            <input type="text" id="adm-new-pw" placeholder="초기비밀번호">
+            <input type="text" id="adm-new-name" placeholder="이름">
+            <button class="btn-action" onclick="createUserByAdmin()">계정 생성</button>
+        </div>
+
+        <div style="background:#f1f3f5; padding:12px; border-radius:8px; margin-bottom:15px;">
+            <h4>📅 정식 합주 일정 추가</h4>
+            <input type="date" id="event-date" value="2026-05-18">
+            <input type="text" id="event-time" placeholder="예: 17:00 ~ 19:00">
+            <input type="text" id="event-title" placeholder="일정 명칭 (예: 정기 합주)">
+            <button class="btn-action" onclick="addCalendarEvent()">정식 일정 등록</button>
+        </div>
+
+        <h4>👥 부원 계정 실시간 데이터 제어 (인라인 직접 수정)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>이름</th>
+                    <th>아이디</th>
+                    <th>비밀번호</th>
+                    <th>세션</th>
+                    <th>권한 수정</th>
+                    <th>작업</th>
+                </tr>
+            </thead>
+            <tbody id="admin-user-log"></tbody>
+        </table>
+    </div>
+
+    <div id="feed-modal" class="modal">
         <div class="modal-content">
-            <h3>새로운 타임라인 피드 공유</h3>
-            <div style="margin-bottom:12px;" class="admin-only">
-                <label style="font-size:13px; color:var(--accent-color); font-weight:700;"><input type="checkbox" id="is-notice-chk"> 📢 중요 피드 공지 지정</label>
-            </div>
-            <input type="text" id="feed-title" placeholder="글 헤드라인">
-            <textarea id="feed-content" rows="4" placeholder="내용을 채워주세요."></textarea>
-            <div class="modal-buttons">
-                <button class="btn-close" onclick="closeModal()">취소</button>
-                <button class="btn-save" onclick="saveFeed()">배포</button>
-            </div>
+            <h4>새 피드 피드백 게시</h4><br>
+            <input type="text" id="feed-title" style="width:100%; margin-bottom:8px;" placeholder="글 제목"><br>
+            <textarea id="feed-content" style="width:100%; height:100px; margin-bottom:8px;" placeholder="내용을 작성하세요"></textarea><br>
+            <button class="btn-action" onclick="saveFeed()">게시하기</button>
+            <button onclick="closeModal()">취소</button>
         </div>
     </div>
-
-    <audio id="remote-audio" autoplay></audio>
 
     <script>
-        let usersDB = JSON.parse(localStorage.getItem('db_users_v7')) || {
-            "ohminseung": { pw: "minmom!23", name: "오민승", role: "부장", part: "기타 마스터" },
-            "drummer": { pw: "1234", name: "김드럼", role: "부원", part: "드럼" },
-            "bassist": { pw: "1234", name: "이지원", role: "부원", part: "베이스" }
-        };
-
-        let currentUser = JSON.parse(localStorage.getItem('db_logged_user_v7')) || null;
+        // 1. 데이터베이스 초기 상태 정의 (LocalStorage 구조화)
+        let currentUser = { id: "admin", name: "부장대장", role: "관리자", part: "기타" };
         
-        let feeds = JSON.parse(localStorage.getItem('db_feeds_v7')) || [
-            { id: 1, title: "📢 데일리 밴드 v7.2 리얼 Node 통화 연동 완료", content: "가상 시뮬레이션을 걷어내고 실제 WebRTC 시그널링 소켓 어댑터가 완벽 이식되었습니다.", date: "2026-05-18", author: "오민승", isNotice: true }
+        let usersDB = JSON.parse(localStorage.getItem('db_users_v7')) || {
+            "admin": { pw: "1234", name: "부장대장", role: "관리자", part: "기타" },
+            "drum_king": { pw: "1111", name: "김드럼", role: "부원", part: "드럼" },
+            "vocal_queen": { pw: "2222", name: "이보컬", role: "부원", part: "보컬" }
+        };
+        
+        let chats = JSON.parse(localStorage.getItem('db_chats_v7')) || [
+            { id: 1, senderId: "system", text: "데일리 밴드 소통 공간에 오신 것을 환영합니다.", timestamp: "2026-05-18" },
+            { id: 2, senderId: "drum_king", senderName: "김드럼", text: "오늘 정기 합주 가시는 분?", timestamp: "2026-05-18", readCount: 2 }
         ];
 
         let calendarEvents = JSON.parse(localStorage.getItem('db_events_v7')) || [
-            { id: 101, date: "2026-05-23", title: "정식 합주 - 가을 축제 조율", time: "18:00 ~ 20:00", attendees: ["오민승", "김드럼"], absentees: ["이지원"] }
-        ];
-        let freeDayVotes = JSON.parse(localStorage.getItem('db_free_votes_v7')) || {};
-        
-        let votes = JSON.parse(localStorage.getItem('db_votes_v7')) || [
-            { id: 201, title: "기억을 걷는 시간", artist: "넬(Nell)", count: 2, voters: ["ohminseung", "drummer"] }
-        ];
-        
-        let chats = JSON.parse(localStorage.getItem('db_chats_v7')) || [
-            { id: 1, senderId: "system", senderName: "운영진", text: "데일리 밴드 메신저 룸 개통 ⚡", timestamp: "2026-05-18" }
+            { id: 101, date: "2026-05-20", title: "정기 1차 합주", time: "18:00 ~ 20:00", attendees: ["부장대장", "김드럼"], absentees: ["이보컬"] }
         ];
 
-        let pinnedChatText = localStorage.getItem('db_pinned_chat_v7') || "📢 [공지] 이번 주 토요일 오후 6시 정식 합주 전원 지참 및 카피 필수!";
-        let activeWhisperTargetId = null;
-
-        // 🛡️ [수정] 진짜 WebRTC 및 Node 소켓 자원 제어 변수들
-        let socket = null;
-        let localStream = null;
-        let peerConnection = null;
-        let audioContext = null;
-        let analyser = null;
-        let javascriptNode = null;
-        let talkTimerInterval = null;
-        let talkSeconds = 0;
-
-        // 구글 무료 공개 STUN 서버 주소 세팅 (방화벽 통과 및 P2P 터널링용)
-        const rtcConfig = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
+        let freeDayVotes = JSON.parse(localStorage.getItem('db_free_votes_v7')) || {
+            "2026-05-22": ["김드럼", "이보컬"]
         };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            calculateDday();
-            setTimeout(() => {
-                document.getElementById('splash-screen').classList.add('fade-out');
-                if (currentUser && usersDB[currentUser.id]) {
-                    currentUser = { id: currentUser.id, ...usersDB[currentUser.id] };
-                    applyAuthentication();
-                } else {
-                    document.getElementById('login-screen').classList.remove('hidden');
-                }
-            }, 1000);
-        });
+        let feeds = JSON.parse(localStorage.getItem('db_feeds_v7')) || [
+            { id: 1, title: "공지: 다음 주 카피곡 선정 안내", content: "각자 투표 탭에서 원하는 곡에 투표 필수!", date: "2026-05-18", author: "부장대장" }
+        ];
 
-        function calculateDday() {
-            const targetDate = new Date("2026-07-02");
-            const today = new Date("2026-05-18");
-            const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
-            document.getElementById('live-dday-counter').textContent = diffDays >= 0 ? `D-${diffDays}` : `D+${Math.abs(diffDays)}`;
+        let votes = JSON.parse(localStorage.getItem('db_votes_v7')) || [
+            { title: "그대에게", artist: "신해철" },
+            { title: "정거장", artist: "이무진" },
+            { title: "아파트", artist: "윤수일" }
+        ];
+
+        let pinnedChatText = localStorage.getItem('db_pinned_chat_v7') || "📢 상단 고정 공지사항이 비어있습니다.";
+
+        // WebRTC 및 글로벌 전역 변수
+        let socket = null; // Node 서버 연결용 가상/실제 소켓 변수 (Mocking 혹은 socket.io 바인딩 가능)
+        let peerConnection = null;
+        let localStream = null;
+        let talkTimerInterval = null;
+        let talkSeconds = 0;
+        let audioContext = null, analyser = null, javascriptNode = null;
+        let activeWhisperTargetId = null;
+        const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
+        // 가상 소켓 서버 에뮬레이터 (Node 시그널링 서버가 없을 때 정상 구동을 위한 더미 스크립트)
+        if (typeof io !== 'undefined') {
+            socket = io('http://localhost:3000'); // 실제 Node 서버 연결 시 사용
+        } else {
+            socket = { emit: function(ev, data){ console.log(`[Node시그널링서버 송신] Event: ${ev}`, data); } };
         }
 
-        function handleLogin() {
-            const idVal = document.getElementById('login-id').value.trim();
-            const pwVal = document.getElementById('login-pw').value.trim();
-            if(usersDB[idVal] && usersDB[idVal].pw === pwVal) {
-                currentUser = { id: idVal, ...usersDB[idVal] };
-                localStorage.setItem('db_logged_user_v7', JSON.stringify(currentUser));
-                document.getElementById('login-screen').classList.add('hidden');
-                applyAuthentication();
-            } else {
-                alert("로그인 정보가 불일치합니다.");
-            }
-        }
-
-        function handleLogout() {
-            if(peerConnection) stopVoiceTalk(true);
-            localStorage.removeItem('db_logged_user_v7');
-            currentUser = null;
-            document.getElementById('login-screen').classList.remove('hidden');
-        }
-
-        function applyAuthentication() {
-            document.getElementById('user-tag').textContent = `${currentUser.name} (${currentUser.part || '세션'})`;
-            if(currentUser.role === "부장") {
-                document.getElementById('user-tag').classList.add('admin');
-                document.body.classList.add('is-admin');
-            } else {
-                document.getElementById('user-tag').classList.remove('admin');
-                document.body.classList.remove('is-admin');
-            }
-            document.getElementById('mp-part').value = currentUser.part || "";
-            document.getElementById('mp-pw').value = currentUser.pw;
-            document.getElementById('adm-notice-input').value = pinnedChatText;
-
-            initCoreLogic();
-            initNodeSocket(); // 👈 로그인 직후 Node 소켓 실시간 이벤트 리스너 리딩
-        }
-
-        function initCoreLogic() {
+        // 초기 앱 마운트 실행
+        window.onload = function() {
+            document.getElementById('pinned-notice-text').textContent = pinnedChatText;
+            document.getElementById('mp-part').value = currentUser.part;
+            document.getElementById('mp-pw').value = usersDB[currentUser.id].pw;
+            
             renderFeeds();
+            renderChats();
             renderCalendar();
             renderVotes();
-            renderChats();
             renderAdminBackoffice();
-            document.getElementById('pinned-notice-text').textContent = pinnedChatText;
-            showSelectedDateEvents(new Date().toISOString().split('T')[0]);
-        }
+        };
 
-        // 🔗 [핵심 추가] 너희가 만든 Node.js 소켓 시그널링 규격 연결 파트
-        function initNodeSocket() {
-            if (typeof io === 'undefined') {
-                console.warn("Socket.io 라이브러리가 로드되지 않았습니다. 로컬 독립 환경 실행 중이거나 백엔드 가동 확인이 필요합니다.");
-                return;
-            }
-            
-            // 백엔드가 프론트랑 같은 포트에서 돌면 io()로 자동 연결됨 (다르면 io('http://localhost:3000') 형태)
-            socket = io(); 
-
-            // 다른 멤버가 보이스톡 방에 먼저 진입해 있거나 들어왔을 때 신호 수신
-            socket.on('user-joined', async (data) => {
-                console.log("단원 입장 확인:", data.username);
-                // 내가 먼저 방에 대기 중이었다면 Offer를 만들어서 상대에게 건다
-                if (!peerConnection) {
-                    await setupPeerConnection(true);
-                }
-            });
-
-            // 상대방이 보낸 WebRTC Offer 통화 제안 수신
-            socket.on('offer', async (data) => {
-                console.log("WebRTC 전송 수신 (Offer)");
-                if (!peerConnection) {
-                    await setupPeerConnection(false);
-                }
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-                socket.emit('answer', { answer: answer, room: 'daily-band-voice' });
-            });
-
-            // 내가 보낸 제안에 대한 응답 Answer 수신
-            socket.on('answer', async (data) => {
-                console.log("WebRTC 연결 수락 수신 (Answer)");
-                if (peerConnection) {
-                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                }
-            });
-
-            // P2P 연결 최적화 경로 수신
-            socket.on('ice-candidate', async (data) => {
-                if (peerConnection && data.candidate) {
-                    try {
-                        await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                    } catch (e) {
-                        console.error("ICE 매칭 실패:", e);
-                    }
-                }
-            });
-
-            // 상대가 전화를 끊거나 나갔을 때
-            socket.on('user-left', (data) => {
-                console.log("단원 퇴장:", data.username);
-                stopVoiceTalk(false); // 소켓 신호 다시 쏘지 않고 내 자원만 정리
-            });
-        }
-
-        // 🎙️ [핵심 교체] 하드웨어 마이크 개방 및 P2P 세션 준비 공통 함수
+        // ==================== [💻 WebRTC 보이스톡 엔진 파트] ====================
         async function setupPeerConnection(isCaller) {
             try {
-                // 1. 진짜 내 하드웨어 마이크 연결 권한 요청
+                // 1. 하드웨어 마이크 스트림 호출 및 타이머 스타트
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                document.getElementById('voicetalk-active-bar').style.display = 'flex';
-                
-                // 마이크 볼륨에 따른 실시간 게이지 파트 가동
+                document.getElementById('voicetalk-active-bar').style.display = 'block';
                 startMicGaugeMeter(localStream);
 
-                // 통화 타이머 동기화 가동
                 talkSeconds = 0;
                 talkTimerInterval = setInterval(() => {
                     talkSeconds++;
@@ -533,14 +280,14 @@
                 peerConnection = new RTCPeerConnection(rtcConfig);
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
-                // 3. 내 ICE Candidate(네트워크 경로) 탐색되면 Node 소켓 서버로 브로드캐스트
+                // 3. 내 ICE Candidate 탐색되면 Node 소켓 서버로 브로드캐스트
                 peerConnection.onicecandidate = (event) => {
                     if (event.candidate && socket) {
                         socket.emit('ice-candidate', { candidate: event.candidate, room: 'daily-band-voice' });
                     }
                 };
 
-                // 4. [진짜 중요] 상대방 목소리 스트림이 터널 타고 들어오면 화면의 오디오 태그에 즉시 바인딩해서 스피커로 출력
+                // 4. 상대방 목소리 스트림이 터널 타고 들어오면 오디오 태그에 실시간 파이프 바인딩
                 peerConnection.ontrack = (event) => {
                     const remoteAudio = document.getElementById('remote-audio');
                     if (remoteAudio && event.streams[0]) {
@@ -548,7 +295,7 @@
                     }
                 };
 
-                // 5. 내가 먼저 전화를 건 발신자(Caller)라면 Offer 생성해서 Node 소켓으로 전송
+                // 5. 발신자(Caller)라면 Offer 생성해서 Node 소켓으로 전송
                 if (isCaller && socket) {
                     const offer = await peerConnection.createOffer();
                     await peerConnection.setLocalDescription(offer);
@@ -561,44 +308,31 @@
             }
         }
 
-        // 보이스톡 시작 버튼 클릭 시 작동
         async function startVoiceTalk() {
-            if (!socket) {
-                alert("Node.js 시그널링 서버와 연결 상태를 확인할 수 없습니다.");
-                return;
-            }
-            // Node 소켓 서버에 보이스톡 전용 룸 참가 신청
+            if (!socket) { alert("Node.js 시그널링 서버를 찾을 수 없습니다."); return; }
             socket.emit('join-room', { room: 'daily-band-voice', username: currentUser.name });
-            // 내 마이크 먼저 키고 대기 상태로 진입
             await setupPeerConnection(true);
         }
 
-        // 보이스톡 종료 함수
         function stopVoiceTalk(emitLeaveEvent = true) {
-            // 내가 먼저 끊은 거라면 상대방한테도 소켓으로 나갔다고 알림
             if (emitLeaveEvent && socket) {
                 socket.emit('leave-room', { room: 'daily-band-voice', username: currentUser.name });
             }
-
             if (talkTimerInterval) clearInterval(talkTimerInterval);
             if (javascriptNode) clearInterval(javascriptNode);
             
-            // 로컬 마이크 디바이스 연결 완전히 해제
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
             }
-            // P2P 터널 완전 격하 분리
             if (peerConnection) {
                 peerConnection.close();
                 peerConnection = null;
             }
-            // 오디오 볼륨 노드 릴리즈
             if (audioContext) {
                 audioContext.close();
                 audioContext = null;
             }
-            // 출력 오디오 소스 초기화
             const remoteAudio = document.getElementById('remote-audio');
             if (remoteAudio) remoteAudio.srcObject = null;
 
@@ -607,7 +341,6 @@
             console.log("WebRTC 통화 자원 반납 및 종료 처리 완료.");
         }
 
-        // 마이크 진짜 소리 감지용 게이지 트래커 익스프레션
         function startMicGaugeMeter(stream) {
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -615,7 +348,6 @@
                 let source = audioContext.createMediaStreamSource(stream);
                 source.connect(analyser);
                 analyser.fftSize = 256;
-                
                 let bufferLength = analyser.frequencyBinCount;
                 let dataArray = new Uint8Array(bufferLength);
                 
@@ -628,18 +360,15 @@
                     let barPercent = Math.min(100, Math.floor((volume / 128) * 100));
                     document.getElementById('mic-bar').style.width = barPercent + "%";
                 }, 50);
-            } catch(e) {
-                console.error("오디오 시각화 노드 에러:", e);
-            }
+            } catch(e) { console.error("오디오 시각화 에러:", e); }
         }
 
+        // ==================== [📑 코어 코딩 기능 파트] ====================
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
             event.currentTarget.classList.add('active');
-            if(pageId === 'feed') document.getElementById('global-fab').style.display = 'flex';
-            else document.getElementById('global-fab').style.display = 'none';
             if(pageId === 'chat') scrollChatBottom();
         }
 
@@ -661,18 +390,17 @@
             alert("공지가 철거되었습니다.");
         }
 
-        // 달력 및 스케줄 뷰어
+        // 달력 및 일정 조율 렌더러
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = "";
             ['일','월','화','수','목','금','토'].forEach(l => {
                 const lbl = document.createElement('div'); lbl.className = "calendar-day-label"; lbl.textContent = l; grid.appendChild(lbl);
             });
-            for(let i=0; i<5; i++) grid.appendChild(document.createElement('div'));
+            for(let i=0; i<5; i++) grid.appendChild(document.createElement('div')); // 시작 공백 채우기
 
             for(let d=1; d<=31; d++) {
                 const dayDiv = document.createElement('div'); dayDiv.className = "calendar-day";
                 const dateStr = `2026-05-${d < 10 ? '0' + d : d}`;
-                
                 const numSpan = document.createElement('span'); numSpan.textContent = d; dayDiv.appendChild(numSpan);
 
                 const ev = calendarEvents.find(e => e.date === dateStr);
@@ -712,7 +440,7 @@
                     <div class="free-voters-box">
                         <div style="font-weight:700; font-size:12px; margin-bottom:4px;">🙋 참여 가능 선언 멤버</div>
                         <div style="color:var(--brand-blue); font-weight:700; font-size:13px; margin-bottom:8px;">${freeVoters.join(', ') || '가능 인원 없음'}</div>
-                        <button class="btn-action" style="font-size:12px; width:100%; justify-content:center; background:#fff;" onclick="voteFreeDay('${dateStr}')">👍 내 스케줄 가능여부 변경</button>
+                        <button class="btn-action" style="font-size:12px; width:100%; justify-content:center; background:#fff; color:#222; border:1px solid #ccc;" onclick="voteFreeDay('${dateStr}')">👍 내 스케줄 가능여부 변경</button>
                     </div>
                 `;
             } else {
@@ -721,6 +449,11 @@
                     const isAttending = ev.attendees.includes(currentUser.name);
                     const isAbsenting = ev.absentees.includes(currentUser.name);
                     
+                    // 관리자라면 [일정 삭제] 제어 액션 노출 구현
+                    const adminDeleteBtn = (currentUser.role === '관리자') 
+                        ? `<button class="btn-danger" style="width:100%; margin-top:8px; padding:4px; font-size:12px;" onclick="deleteCalendarEvent(${ev.id}, '${dateStr}')">🗑️ 이 정식 합주 일정 완전히 삭제</button>` 
+                        : '';
+
                     container.innerHTML += `
                         <div style="background:#fffdb5; padding:12px; border-radius:12px; border:1px solid var(--brand-yellow-border);">
                             <div style="font-weight:700; font-size:14px;">${ev.title}</div>
@@ -728,28 +461,33 @@
                             <div style="background:#fff; padding:6px; border-radius:6px; font-size:12px; border:1px solid #e4e9f2; margin-bottom:4px;">참석 확정: <b style="color:var(--brand-blue);">${ev.attendees.join(', ') || '없음'}</b></div>
                             <div style="background:#fff; padding:6px; border-radius:6px; font-size:12px; border:1px solid #e4e9f2; margin-bottom:8px;">불참 통보: <b style="color:var(--brand-green);">${ev.absentees.join(', ') || '없음'}</b></div>
                             <div style="display:flex; gap:6px;">
-                                <button class="btn-action" style="flex:1; justify-content:center; background:${isAttending?'var(--brand-blue)':'#fff'}; color:${isAttending?'#fff':''};" onclick="declareAttendance(${ev.id}, true)">🙋 참전 확정</button>
-                                <button class="btn-action" style="flex:1; justify-content:center; background:${isAbsenting?'var(--brand-green)':'#fff'}; color:${isAbsenting?'#fff':''};" onclick="declareAttendance(${ev.id}, false)">❌ 불참 선언</button>
+                                <button class="btn-action" style="flex:1; background:${isAttending?'var(--brand-blue)':'#fff'}; color:${isAttending?'#fff':'#222'}; border:1px solid #ccc;" onclick="declareAttendance(${ev.id}, true)">🙋 참전 확정</button>
+                                <button class="btn-action" style="flex:1; background:${isAbsenting?'var(--brand-green)':'#fff'}; color:${isAbsenting?'#fff':'#222'}; border:1px solid #ccc;" onclick="declareAttendance(${ev.id}, false)">❌ 불참 선언</button>
                             </div>
+                            ${adminDeleteBtn}
                         </div>
                     `;
                 });
             }
         }
 
+        // [기능 추가] 정식 합주 일정 삭제 함수 구현
+        function deleteCalendarEvent(eventId, dateStr) {
+            if(!confirm("이 정식 합주 일정을 완전히 파기합니까? 부원들의 참/불참 정보도 제거됩니다.")) return;
+            calendarEvents = calendarEvents.filter(e => e.id !== eventId);
+            localStorage.setItem('db_events_v7', JSON.stringify(calendarEvents));
+            alert("정식 일정이 정상 제거되었습니다.");
+            renderCalendar();
+            showSelectedDateEvents(dateStr);
+        }
+
         function declareAttendance(eventId, attending) {
             const ev = calendarEvents.find(e => e.id === eventId); if(!ev) return;
             if(!ev.absentees) ev.absentees = [];
-
             ev.attendees = ev.attendees.filter(name => name !== currentUser.name);
             ev.absentees = ev.absentees.filter(name => name !== currentUser.name);
-
-            if(attending) {
-                ev.attendees.push(currentUser.name);
-            } else {
-                ev.absentees.push(currentUser.name);
-            }
-
+            if(attending) ev.attendees.push(currentUser.name);
+            else ev.absentees.push(currentUser.name);
             localStorage.setItem('db_events_v7', JSON.stringify(calendarEvents));
             renderCalendar(); showSelectedDateEvents(ev.date);
         }
@@ -767,9 +505,10 @@
             const title = document.getElementById('event-title').value.trim();
             const date = document.getElementById('event-date').value;
             const time = document.getElementById('event-time').value.trim();
-            if(!title || !date || !time) return;
+            if(!title || !date || !time) return alert("합주 정보를 빈칸 없이 써주세요.");
             calendarEvents.push({ id: Date.now(), date, title, time, attendees: [currentUser.name], absentees: [] });
             localStorage.setItem('db_events_v7', JSON.stringify(calendarEvents));
+            alert("정식 스케줄 일정이 캘린더에 병합되었습니다.");
             renderCalendar(); showSelectedDateEvents(date);
         }
 
@@ -837,13 +576,14 @@
             const list = document.getElementById('feed-list'); list.innerHTML = "";
             feeds.forEach(post => {
                 const card = document.createElement('div'); card.className = 'card';
-                card.innerHTML = `<div class="card-title"><span>${post.title}</span></div><div style="font-size:13.5px;">${post.content}</div>`;
+                card.innerHTML = `<div class="card-title"><span>${post.title}</span><small style='color:#888;'>${post.author}</small></div><div style="font-size:13.5px;">${post.content}</div>`;
                 list.appendChild(card);
             });
         }
 
         function openModal() { document.getElementById('feed-modal').classList.add('active'); }
         function closeModal() { document.getElementById('feed-modal').classList.remove('active'); }
+        
         function saveFeed() {
             const title = document.getElementById('feed-title').value.trim();
             const content = document.getElementById('feed-content').value.trim();
@@ -853,13 +593,39 @@
             closeModal(); renderFeeds();
         }
 
+        // [기능 추가 및 렌더링 수정] 곡 목록 바인딩 및 곡 삭제 연동
         function renderVotes() {
-            const list = document.getElementById('vote-list'); list.innerHTML = "";
-            votes.forEach(item => {
-                const itemDiv = document.createElement('div'); itemDiv.className = "vote-item";
-                itemDiv.innerHTML = `<div class="vote-info"><h4>${item.title}</h4><p>${item.artist}</p></div>`;
+            const list = document.getElementById('vote-list'); if(!list) return;
+            list.innerHTML = "";
+            
+            votes.forEach((item, index) => {
+                const itemDiv = document.createElement('div'); 
+                itemDiv.className = "card";
+                itemDiv.style.display = "flex";
+                itemDiv.style.justifyContent = "between";
+                itemDiv.style.alignItems = "center";
+                
+                // 관리자라면 곡 옆에 삭제 기능 버튼 부착
+                const deleteSongBtn = (currentUser.role === '관리자') 
+                    ? `<button class="btn-danger" style="padding:4px 8px; font-size:12px;" onclick="deleteSongByIndex(${index})">곡 삭제</button>` 
+                    : '';
+
+                itemDiv.innerHTML = `
+                    <div style="flex:1;">
+                        <span style="font-weight:bold; font-size:15px;">${item.title}</span> - <small style="color:#666;">${item.artist}</small>
+                    </div>
+                    ${deleteSongBtn}
+                `;
                 list.appendChild(itemDiv);
             });
+        }
+
+        function deleteSongByIndex(index) {
+            if(!confirm(`[${votes[index].title}] 곡을 목록에서 삭제하시겠습니까?`)) return;
+            votes.splice(index, 1);
+            localStorage.setItem('db_votes_v7', JSON.stringify(votes));
+            alert("선곡 목록에서 정상 제외되었습니다.");
+            renderVotes();
         }
 
         function updateMyProfile() {
@@ -867,7 +633,8 @@
             const pw = document.getElementById('mp-pw').value.trim();
             usersDB[currentUser.id].part = p; usersDB[currentUser.id].pw = pw;
             localStorage.setItem('db_users_v7', JSON.stringify(usersDB));
-            alert("프로필 정보 동기화 완료"); applyAuthentication();
+            alert("프로필 정보 마이그레이션 완료");
+            renderAdminBackoffice();
         }
 
         function createUserByAdmin() {
@@ -877,16 +644,95 @@
             if(!id || !pw || !name) return alert("빈칸 유실");
             usersDB[id] = { pw: pw, name: name, role: "부원", part: "미정 세션" };
             localStorage.setItem('db_users_v7', JSON.stringify(usersDB));
-            alert("부원 계정이 발급되었습니다."); renderAdminBackoffice(); renderChats();
+            alert("부원 계정이 발급되었습니다.");
+            
+            document.getElementById('adm-new-id').value = "";
+            document.getElementById('adm-new-pw').value = "";
+            document.getElementById('adm-new-name').value = "";
+            
+            renderAdminBackoffice(); renderChats();
         }
 
+        // =================================================================
+        // 👑 [핵심 수정] 관리자 백오피스 리스트 인라인 직접 수정/삭제 엔진
+        // =================================================================
         function renderAdminBackoffice() {
-            const tbody = document.getElementById('admin-user-log'); if(!tbody) return; tbody.innerHTML = "";
+            const tbody = document.getElementById('admin-user-log'); 
+            if(!tbody) return; 
+            tbody.innerHTML = "";
+            
             Object.keys(usersDB).forEach(id => {
-                const u = usersDB[id]; const tr = document.createElement('tr');
-                tr.innerHTML = `<td><b>${u.name}</b></td><td><span>${id}</span></td><td><code>${u.pw}</code></td><td>[권한 소유]</td>`;
+                const u = usersDB[id]; 
+                const tr = document.createElement('tr');
+                const isMe = (id === currentUser.id);
+
+                // 본인 계정은 삭제 불가 방어 태그
+                const deleteActionBtn = isMe 
+                    ? `<span style="color:#999; font-size:11px;">(본인제외)</span>` 
+                    : `<button class="btn-danger" style="font-size:11px; padding:3px 6px;" onclick="deleteUserInline('${id}')">계정 삭제</button>`;
+
+                // prompt 팝업창을 완전히 없애고 테이블 내부 인풋 컴포넌트 직접 주입
+                tr.innerHTML = `
+                    <td><input type="text" class="inline-edit-input" id="inline-name-${id}" value="${u.name}"></td>
+                    <td><b>${id}</b></td>
+                    <td><input type="text" class="inline-edit-input" id="inline-pw-${id}" value="${u.pw}"></td>
+                    <td><input type="text" class="inline-edit-input" id="inline-part-${id}" value="${u.part || '미정'}"></td>
+                    <td>
+                        <select id="inline-role-${id}" style="font-size:12px; padding:2px;">
+                            <option value="부원" ${u.role === '부원' ? 'selected' : ''}>부원</option>
+                            <option value="관리자" ${u.role === '관리자' ? 'selected' : ''}>관리자</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn-action" style="font-size:11px; padding:3px 6px; margin-right:2px;" onclick="saveUserInline('${id}')">저장</button>
+                        ${deleteActionBtn}
+                    </td>
+                `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // 직접 입력한 정보 실시간 통으로 저장(전체수정)
+        function saveUserInline(id) {
+            const inputName = document.getElementById(`inline-name-${id}`).value.trim();
+            const inputPw = document.getElementById(`inline-pw-${id}`).value.trim();
+            const inputPart = document.getElementById(`inline-part-${id}`).value.trim();
+            const selectRole = document.getElementById(`inline-role-${id}`).value;
+
+            if(!inputName || !inputPw || !inputPart) {
+                alert("공백 데이터가 발견되어 수정 사항을 저장할 수 없습니다.");
+                return;
+            }
+
+            // 인라인 폼 값 오브젝트 데이터 매핑
+            usersDB[id].name = inputName;
+            usersDB[id].pw = inputPw;
+            usersDB[id].part = inputPart;
+            usersDB[id].role = selectRole;
+
+            localStorage.setItem('db_users_v7', JSON.stringify(usersDB));
+            alert(`[${id}] 계정 정보가 필드 직접 입력을 통해 실시간 동기화되었습니다.`);
+            
+            // 현재 로그인 계정이 내꺼라면 즉시 컨텍스트 변경 업데이트
+            if (id === currentUser.id) {
+                currentUser.name = inputName;
+                currentUser.part = inputPart;
+                currentUser.role = selectRole;
+            }
+            
+            renderAdminBackoffice();
+            renderChats();
+        }
+
+        // 직접 선택한 유저 계정 영구 삭제 함수
+        function deleteUserInline(id) {
+            if(!confirm(`아이디: [${id}] 부원의 계정을 영구 파기합니까? 대화 및 프로필의 모든 기여도가 데이터베이스에서 유실됩니다.`)) return;
+            
+            delete usersDB[id];
+            localStorage.setItem('db_users_v7', JSON.stringify(usersDB));
+            alert("해당 부원의 모든 정보가 정상적으로 파기되었습니다.");
+            renderAdminBackoffice();
+            renderChats();
         }
     </script>
 </body>

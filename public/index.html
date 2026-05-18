@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>데일리 밴드 (Daily Band) V8.5</title>
+    <title>데일리 밴드 (Daily Band) V7.2</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
@@ -94,12 +94,10 @@
         
         .btn-action { background: #f0f4f9; border: 1px solid #e2e8f0; color: #4a5568; padding: 8px 14px; border-radius: 10px; font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; }
         
-        /* 어드민 제어 클래스 */
         .admin-only { display: none !important; }
         body.is-admin .admin-only { display: block !important; }
         body.is-admin .admin-inline-only { display: inline-flex !important; }
 
-        /* 플로팅 액션 버튼 및 모달 */
         .fab { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; background: var(--brand-blue); color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 14px rgba(0,122,255,0.4); cursor: pointer; z-index: 800; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal.active { display: flex; }
@@ -120,26 +118,26 @@
         .absent-badge-inline { font-size: 8.5px; color: var(--brand-green); font-weight: 800; margin-top: 2px; background: rgba(52,199,89,0.12); padding: 1px 2px; border-radius: 4px; width: 92%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .free-voters-box { background: #f1f5f9; padding: 12px; border-radius: 12px; margin-top: 10px; font-size: 13px; }
 
-        /* 투표 UI */
+        /* 투표 시스템 */
         .vote-item { background: #f8fafc; padding: 12px 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); }
         .vote-info { display: flex; flex-direction: column; gap: 2px; }
-        .vote-count { font-weight: 700; color: var(--brand-blue); font-size: 16px; }
-
-        /* 실시간 대화방 및 보이스톡 바 */
-        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 190px); }
-        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px; margin-bottom: 10px; }
-        .chat-bubble-row { display: flex; flex-direction: column; max-width: 85%; }
-        .chat-bubble-row.mine { align-self: flex-end; align-items: flex-end; }
-        .chat-bubble-row.other { align-self: flex-start; align-items: flex-start; }
-        .chat-bubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.4; }
-        .chat-bubble.mine { background: var(--brand-blue); color: #fff; }
-        .chat-bubble.other { background: #ffffff; border: 1px solid var(--border-color); }
         
+        /* 📞 실시간 보이스톡 바 전용 추가 CSS (원래 디자인을 해치지 않게 조용히 아래 숨겨둠) */
         .voicetalk-bar { background: #e6ffed; border: 1px solid #bbf7d0; padding: 10px 14px; border-radius: 14px; font-size: 13px; display: none; align-items: center; justify-content: space-between; margin-bottom: 12px; color: #15803d; font-weight: bold; }
         .vt-pulse { width: 8px; height: 8px; background: var(--brand-green); border-radius: 50%; animation: vtPulse 1s infinite alternate; }
         @keyframes vtPulse { from { transform: scale(0.8); opacity: 0.5; } to { transform: scale(1.2); opacity: 1; } }
         .mic-meter-container { width: 60px; height: 6px; background: #d1fae5; border-radius: 3px; overflow: hidden; }
         .mic-meter-bar { width: 0%; height: 100%; background: var(--brand-green); }
+        
+        /* 💬 실시간 대화방 내부 전용 스크롤 레이아웃 추가 */
+        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 200px); }
+        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px; margin-bottom: 10px; }
+        .chat-bubble-row { display: flex; flex-direction: column; max-width: 85%; }
+        .chat-bubble-row.mine { align-self: flex-end; align-items: flex-end; }
+        .chat-bubble-row.other { align-self: flex-start; align-items: flex-start; }
+        .chat-bubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; }
+        .chat-bubble.mine { background: var(--brand-blue); color: #fff; }
+        .chat-bubble.other { background: #ffffff; border: 1px solid var(--border-color); }
     </style>
 </head>
 <body>
@@ -174,10 +172,7 @@
                         <span>📅 합주 일정 투표</span>
                         <button class="btn-action admin-only" onclick="openAdminModal()"><span class="material-icons" style="font-size:16px;">settings</span>공식등록</button>
                     </div>
-                    
-                    <div class="calendar-grid" id="calendar-days-box">
-                        </div>
-
+                    <div class="calendar-grid" id="calendar-days-box"></div>
                     <div class="free-voters-box" id="day-detail-zone">
                         날짜를 선택하면 투표 및 불참 현황을 볼 수 있습니다.
                     </div>
@@ -188,8 +183,7 @@
                         <span>🎵 다음 합주곡 투표</span>
                         <button class="btn-action admin-only" onclick="openVoteCreateModal()"><span class="material-icons" style="font-size:16px;">add</span>항목추가</button>
                     </div>
-                    <div id="vote-list-box">
-                        </div>
+                    <div id="vote-list-box"></div>
                 </div>
             </section>
             
@@ -219,7 +213,7 @@
         
         <nav>
             <div class="nav-item active" onclick="switchPage('schedule')"><span class="material-icons">calendar_month</span>일정/투표</div>
-            <div class="nav-item" onclick="switchPage('chat')"><span class="material-icons">forum</span>대화방(무전기)</div>
+            <div class="nav-item" onclick="switchPage('chat')"><span class="material-icons">forum</span>대화방</div>
         </nav>
     </div>
 
@@ -247,20 +241,18 @@
     </div>
 
     <script>
-        // 유저 DB 커스텀 매핑 정보 (V7.2 완벽 유지)
         const usersDB = {
             "ohminseung": { pw: "minmom!23", name: "오민승", part: "기타 솔로", admin: true },
             "drummer": { pw: "1234", name: "김드럼", part: "드럼 세션", admin: false },
             "bassist": { pw: "1234", name: "이지원", part: "베이스 세션", admin: false }
         };
 
-        let currentUser = JSON.parse(localStorage.getItem('db_logged_user_v8.5')) || null;
+        let currentUser = JSON.parse(localStorage.getItem('db_logged_user_v7.2_fixed')) || null;
         let selectedDateStr = ""; 
-        let chats = [{ senderName: "시스템", text: "실시간 대화 및 보전 제어방 활성화 완료! ⚡" }];
+        let chats = [{ senderName: "시스템", text: "실시간 대화방에 오신 것을 환영합니다! ⚡" }];
         let localStream = null;
         let talkTimerInterval = null, talkSeconds = 0, micMeterInterval = null;
 
-        // 투표 및 일정 세팅 로컬 스토리지 초기화
         if(!localStorage.getItem('cal_official_events')) localStorage.setItem('cal_official_events', JSON.stringify({"18": "정기합주 (7시)"}));
         if(!localStorage.getItem('cal_votes')) localStorage.setItem('cal_votes', JSON.stringify({"18": ["오민승", "김드럼"]}));
         if(!localStorage.getItem('cal_absents')) localStorage.setItem('cal_absents', JSON.stringify({"18": ["이지원"]}));
@@ -282,13 +274,13 @@
             const pwVal = document.getElementById('login-pw').value.trim();
             if(usersDB[idVal] && usersDB[idVal].pw === pwVal) {
                 currentUser = { id: idVal, ...usersDB[idVal] };
-                localStorage.setItem('db_logged_user_v8.5', JSON.stringify(currentUser));
+                localStorage.setItem('db_logged_user_v7.2_fixed', JSON.stringify(currentUser));
                 document.getElementById('login-screen').classList.add('hidden');
                 applyAuthentication();
             } else { alert("로그인 정보가 틀렸습니다."); }
         }
 
-        function handleLogout() { localStorage.removeItem('db_logged_user_v8.5'); location.reload(); }
+        function handleLogout() { localStorage.removeItem('db_logged_user_v7.2_fixed'); location.reload(); }
 
         function applyAuthentication() {
             document.getElementById('user-tag').textContent = `${currentUser.name} (${currentUser.part})`;
@@ -308,10 +300,8 @@
             if(pageId === 'chat') scrollChatBottom();
         }
 
-        /* 📅 원본 달력 제어 시스템 설계 그대로 탑재 */
         function buildCalendar() {
-            const box = document.getElementById('calendar-days-box');
-            box.innerHTML = "";
+            const box = document.getElementById('calendar-days-box'); box.innerHTML = "";
             const labels = ["일", "월", "화", "수", "목", "금", "토"];
             labels.forEach(l => box.innerHTML += `<div class="calendar-day-label">${l}</div>`);
 
@@ -319,7 +309,6 @@
             let votes = JSON.parse(localStorage.getItem('cal_votes')) || {};
             let absents = JSON.parse(localStorage.getItem('cal_absents')) || {};
 
-            // 5월 달력 기준 더미 정렬 배치 (1일부터 31일까지 가상 렌더)
             for(let i=1; i<=31; i++) {
                 let dayStr = String(i);
                 let isOfficial = officials[dayStr] ? 'has-official-event' : '';
@@ -340,16 +329,13 @@
         }
 
         function clickDate(dayStr) {
-            selectedDateStr = dayStr;
-            buildCalendar();
-
+            selectedDateStr = dayStr; buildCalendar();
             let officials = JSON.parse(localStorage.getItem('cal_official_events')) || {};
             let votes = JSON.parse(localStorage.getItem('cal_votes')) || {};
             let absents = JSON.parse(localStorage.getItem('cal_absents')) || {};
 
             let oEvent = officials[dayStr] ? `<b style="color:var(--whisper-color)">[공식] ${officials[dayStr]}</b>` : '공식 일정 없음';
-            let vList = votes[dayStr] || [];
-            let aList = absents[dayStr] || [];
+            let vList = votes[dayStr] || []; let aList = absents[dayStr] || [];
 
             document.getElementById('day-detail-zone').innerHTML = `
                 <h4 style="margin-bottom:8px;">📅 5월 ${dayStr}일 상세 정보</h4>
@@ -361,8 +347,7 @@
                 <div style="display:flex; gap:8px;">
                     <button class="btn-action" style="background:var(--brand-blue); color:white; border:none;" onclick="voteDate(true)">👍 가능 투표</button>
                     <button class="btn-action" style="background:var(--brand-green); color:white; border:none;" onclick="voteDate(false)">❌ 불참 등록</button>
-                </div>
-            `;
+                </div>`;
         }
 
         function voteDate(isAvailable) {
@@ -370,7 +355,6 @@
             let votes = JSON.parse(localStorage.getItem('cal_votes')) || {};
             let absents = JSON.parse(localStorage.getItem('cal_absents')) || {};
 
-            // 중복 청소
             if(!votes[selectedDateStr]) votes[selectedDateStr] = [];
             if(!absents[selectedDateStr]) absents[selectedDateStr] = [];
             votes[selectedDateStr] = votes[selectedDateStr].filter(u => u !== currentUser.name);
@@ -384,7 +368,6 @@
             clickDate(selectedDateStr);
         }
 
-        /* 👑 관리자 전용 제어 명령 라인 */
         function openAdminModal() {
             if(!selectedDateStr) return alert("공식 등록할 날짜를 달력에서 클릭하세요.");
             document.getElementById('admin-target-date').textContent = `5월 ${selectedDateStr}일`;
@@ -402,11 +385,9 @@
             closeModal('admin-modal'); buildCalendar(); clickDate(selectedDateStr);
         }
 
-        /* 🎵 곡 투표 렌더 시스템 */
         function renderSongVotes() {
             const box = document.getElementById('vote-list-box'); box.innerHTML = "";
             let songVotes = JSON.parse(localStorage.getItem('song_votes')) || [];
-            
             songVotes.forEach(v => {
                 let hasVoted = v.voters.includes(currentUser.name) ? "✓ 투표됨" : "투표하기";
                 let btnStyle = v.voters.includes(currentUser.name) ? "background:var(--brand-blue); color:white;" : "";
@@ -441,7 +422,7 @@
             }
         }
 
-        /* 💬 실시간 소켓 채팅 및 보이스톡 제어선 */
+        /* 💬 실시간 대화 및 무전선 내장 처리 */
         function renderChats() {
             const box = document.getElementById('chat-box'); box.innerHTML = "";
             chats.forEach(c => {
@@ -455,8 +436,7 @@
         }
         function sendChat() {
             const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return;
-            chats.push({ senderName: currentUser.name, text: inp.value.trim() }); 
-            renderChats(); inp.value = "";
+            chats.push({ senderName: currentUser.name, text: inp.value.trim() }); renderChats(); inp.value = "";
         }
         function scrollChatBottom() { const box = document.getElementById('chat-box'); box.scrollTop = box.scrollHeight; }
 
@@ -472,7 +452,7 @@
                     document.getElementById('mic-bar').style.width = Math.floor(Math.random() * 85 + 15) + "%";
                 }, 120);
                 socket.emit('join-voicetalk', "daily_band_main_room");
-            }).catch(() => alert("마이크 권한을 승인해야 이용할 수 있습니다."));
+            }).catch(() => alert("마이크 권한이 필요합니다."));
         }
         function stopVoiceTalk() {
             if(talkTimerInterval) clearInterval(talkTimerInterval); if(micMeterInterval) clearInterval(micMeterInterval);

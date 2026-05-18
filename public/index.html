@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>데일리 밴드 (Daily Band) V7.2</title>
-
+    <title>데일리 밴드 (Daily Band) V7</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
     <style>
         :root {
             --bg-color: #f5f7fb;
@@ -15,7 +13,6 @@
             --primary-color: #222222;
             --accent-color: #ff3b30;
             --brand-blue: #007aff;
-            --brand-green: #34c759;
             --brand-yellow: #fff3bf;
             --brand-yellow-border: #fab005;
             --text-color: #2d3142;
@@ -24,652 +21,163 @@
             --whisper-color: #ff9500;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans KR', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-color); overflow: hidden; position: relative; height: 100vh; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            overflow: hidden;
-            position: relative;
-            height: 100vh;
-        }
-
+        /* 로딩 스플래시 */
         #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
             transition: opacity 0.5s ease;
         }
-
-        #splash-screen.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
+        #splash-screen.fade-out { opacity: 0; pointer-events: none; }
         .logo-animation {
-            width: 100px;
-            height: 100px;
-            border: 4px solid var(--brand-blue);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 38px;
-            animation: pulse 1.5s infinite alternate;
-            background: #fff;
+            width: 100px; height: 100px; border: 4px solid var(--brand-blue); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; font-size: 38px;
+            animation: pulse 1.5s infinite alternate; background: #fff;
         }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 10px rgba(0,122,255,0.2); } 100% { transform: scale(1.05); box-shadow: 0 0 25px rgba(0,122,255,0.4); } }
+        .splash-title { margin-top: 20px; font-size: 20px; font-weight: 700; letter-spacing: 4px; color: var(--brand-blue); }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 10px rgba(0,122,255,0.2);
-            }
-
-            100% {
-                transform: scale(1.05);
-                box-shadow: 0 0 25px rgba(0,122,255,0.4);
-            }
-        }
-
+        /* 로그인 스크린 */
         #login-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 25px;
-            z-index: 9998;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color);
+            display: flex; flex-direction: column; justify-content: center; padding: 25px; z-index: 9998;
         }
+        #login-screen.hidden { display: none; }
+        .login-box { background: var(--surface-color); padding: 50px 25px; border-radius: 24px; border: 1px solid var(--border-color); text-align: center; box-shadow: 0 10px 30px rgba(140,146,172,0.15); }
+        .login-box h2 { margin-bottom: 30px; font-size: 26px; font-weight: 700; color: var(--brand-blue); letter-spacing: 2px; }
 
-        #login-screen.hidden {
-            display: none;
+        input[type="text"], input[type="password"], input[type="date"], textarea {
+            width: 100%; padding: 12px 16px; margin-bottom: 12px; border-radius: 12px; 
+            border: 1px solid #dbe2ef; background: #f9fbfd; color: var(--primary-color); 
+            font-size: 14px; outline: none;
         }
+        input:focus, textarea:focus { border-color: var(--brand-blue); background: #ffffff; }
 
-        .login-box {
-            background: var(--surface-color);
-            padding: 50px 25px;
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(140,146,172,0.15);
-        }
-
-        .login-box h2 {
-            margin-bottom: 30px;
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--brand-blue);
-            letter-spacing: 2px;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        input[type="date"],
-        textarea {
-            width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            border: 1px solid #dbe2ef;
-            background: #f9fbfd;
-            color: var(--primary-color);
-            font-size: 14px;
-            outline: none;
-        }
-
-        input:focus,
-        textarea:focus {
-            border-color: var(--brand-blue);
-            background: #ffffff;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--brand-blue), #0056b3);
-            color: #fff;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,122,255,0.3);
+        .btn-submit { 
+            width: 100%; padding: 15px; border: none; border-radius: 14px; 
+            background: linear-gradient(135deg, var(--brand-blue), #0056b3); color: #fff; 
+            font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,122,255,0.3);
             margin-top: 10px;
         }
 
-        #app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+        /* 구조 및 레이아웃 */
+        #app-container { display: flex; flex-direction: column; height: 100vh; }
+        header { background: var(--surface-color); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        header h1 { font-size: 18px; font-weight: 700; color: var(--brand-blue); }
+        
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .role-badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; background: #edf2f9; color: #4f5e7b; }
+        .role-badge.admin { background: linear-gradient(135deg, var(--accent-color), #cc1111); color: #fff; }
+        .btn-logout { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; }
 
-        header {
-            background: var(--surface-color);
-            padding: 14px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-        }
+        main { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 95px; }
+        .page { display: none; }
+        .page.active { display: block; }
 
-        header h1 {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--brand-blue);
-        }
+        /* 하단 네비게이션 */
+        nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface-color); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 12px 0; z-index: 900; box-shadow: 0 -4px 12px rgba(0,0,0,0.03); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; text-decoration: none; cursor: pointer; gap: 4px; font-weight: 500; }
+        .nav-item.active { color: var(--brand-blue); }
 
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        /* 카드 컴포넌트 */
+        .card { background: var(--surface-color); border-radius: 20px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--border-color); position: relative; box-shadow: 0 4px 12px rgba(140,146,172,0.06); }
+        .card-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: #1e2229; }
+        
+        .btn-action { background: #f0f4f9; border: 1px solid #e2e8f0; color: #4a5568; padding: 8px 14px; border-radius: 10px; font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; }
+        
+        .admin-only { display: none !important; }
+        body.is-admin .admin-only { display: block !important; }
+        body.is-admin .admin-inline-only { display: inline-flex !important; }
 
-        .role-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            background: #edf2f9;
-            color: #4f5e7b;
-        }
+        .fab { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; background: var(--brand-blue); color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 14px rgba(0,122,255,0.4); cursor: pointer; z-index: 800; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--surface-color); border-radius: 24px; padding: 24px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; }
+        .modal-buttons button { padding: 12px 20px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-close { background: #edf2f9; color: #4f5e7b; }
+        .btn-save { background: var(--brand-blue); color: #fff; }
 
-        .role-badge.admin {
-            background: linear-gradient(135deg, var(--accent-color), #cc1111);
-            color: #fff;
-        }
+        /* 달력 스타일 */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-bottom: 15px; }
+        .calendar-day-label { font-size: 11px; color: var(--text-muted); font-weight: 700; padding-bottom: 5px; }
+        .calendar-day { padding: 6px 2px; height: 58px; font-size: 13px; border-radius: 12px; background: #f8fafc; cursor: pointer; position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; border: 1px solid transparent; transition: all 0.2s; }
+        .calendar-day.has-official-event { background: var(--brand-yellow) !important; border: 1px solid var(--brand-yellow-border) !important; font-weight: 700; }
+        .calendar-day.selected { border-color: var(--brand-blue); box-shadow: inset 0 0 0 1.5px var(--brand-blue); }
+        .calendar-voters-inline { font-size: 9px; color: var(--brand-blue); font-weight: bold; max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; background: rgba(0,122,255,0.06); padding: 1px 2px; border-radius: 4px; text-align: center; }
+        .official-badge-inline { font-size: 9px; color: #cc7a00; font-weight: 800; margin-top: 1px; background: rgba(251,192,45,0.4); padding: 1px 3px; border-radius: 4px; width: 90%; text-align: center; }
+        .free-voters-box { background: #f1f5f9; padding: 12px; border-radius: 12px; margin-top: 10px; font-size: 13px; }
 
-        .btn-logout {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
+        /* 투표 */
+        .vote-item { background: #f8fafc; padding: 12px 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); }
+        .vote-info h4 { font-size: 14px; font-weight: 700; color: #1e2229; }
 
-        main {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            padding-bottom: 95px;
-        }
+        /* 👑 고도화 채팅 인터페이스 */
+        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 165px); position: relative; }
+        
+        /* 49. 상단 고정 공지 띠 메커니즘 */
+        .chat-notice-pinned { background: #fff9db; border: 1px solid #ffe066; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #f59f00; }
+        
+        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; padding-right: 2px; }
+        
+        /* 56. 대화방 날짜구분선 스타일 */
+        .chat-date-line { text-align: center; margin: 10px 0; font-size: 11px; color: var(--text-muted); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .chat-date-line::before, .chat-date-line::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
 
-        .page {
-            display: none;
-        }
+        .chat-bubble-row { display: flex; flex-direction: column; max-width: 85%; position: relative; }
+        .chat-bubble-row.mine { align-self: flex-end; align-items: flex-end; }
+        .chat-bubble-row.other { align-self: flex-start; align-items: flex-start; }
+        
+        .chat-main-block { display: flex; align-items: flex-end; gap: 6px; width: 100%; }
+        .chat-bubble-row.mine .chat-main-block { flex-direction: row-reverse; }
 
-        .page.active {
-            display: block;
-        }
+        .chat-bubble { padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.45; word-break: break-all; }
+        .chat-bubble.mine { background: var(--brand-blue); color: #fff; border-bottom-right-radius: 2px; box-shadow: 0 3px 10px rgba(0,122,255,0.15); }
+        .chat-bubble.other { background: #ffffff; color: var(--text-color); border-bottom-left-radius: 2px; border: 1px solid var(--border-color); }
+        
+        /* 60. 귓속말/비밀메시지 전용 시각 스킨 */
+        .chat-bubble.whisper { background: #fff3e0 !important; color: #e65100 !important; border: 1px dashed var(--whisper-color) !important; box-shadow: none; }
+        .chat-bubble.whisper-mine { background: var(--whisper-color) !important; color: #fff !important; border-bottom-right-radius: 2px; }
 
-        nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--surface-color);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 900;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
-        }
+        /* 46. 멘션 스타일 기재 */
+        .mention-badge { background: #e3f2fd; color: #0d47a1; padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 12px; margin-right: 2px; }
+        .chat-bubble.mine .mention-badge { background: rgba(255,255,255,0.25); color: #fff; }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-muted);
-            font-size: 10px;
-            text-decoration: none;
-            cursor: pointer;
-            gap: 4px;
-            font-weight: 500;
-        }
+        /* 48. 실시간 읽음 처리 데코레이션 */
+        .chat-read-receipt { font-size: 10px; color: var(--brand-blue); font-weight: bold; white-space: nowrap; margin-bottom: 2px; }
+        .chat-bubble-row.mine .chat-read-receipt { color: #4dabf7; }
 
-        .nav-item.active {
-            color: var(--brand-blue);
-        }
+        .chat-sender { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; cursor: pointer; }
+        .chat-sender:hover { color: var(--brand-blue); text-decoration: underline; }
+        
+        .chat-more-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .chat-more-btn:hover { background: rgba(0,0,0,0.05); }
 
-        .card {
-            background: var(--surface-color);
-            border-radius: 20px;
-            padding: 18px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-            position: relative;
-            box-shadow: 0 4px 12px rgba(140,146,172,0.06);
-        }
+        .chat-control-panel { display: none; gap: 6px; margin-top: 4px; animation: fadeIn 0.2s ease; }
+        .chat-control-panel.active { display: flex; }
+        .btn-inline-ctrl { background: #ffffff; border: 1px solid var(--border-color); font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; color: #4a5568; }
+        .btn-inline-ctrl.delete { color: var(--accent-color); border-color: #ffccd0; }
 
-        .card-title {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #1e2229;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-action {
-            background: #f0f4f9;
-            border: 1px solid #e2e8f0;
-            color: #4a5568;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
+        .chat-input-area { display: flex; flex-direction: column; gap: 4px; padding-top: 10px; background: var(--bg-color); }
+        .chat-input-row { display: flex; gap: 8px; }
 
-        .admin-only {
-            display: none !important;
-        }
+        /* 인라인 테이블 에디터 스킨 */
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12.5px; }
+        .admin-table th, .admin-table td { padding: 10px 8px; border-bottom: 1px solid var(--border-color); text-align: left; vertical-align: middle; }
+        .admin-table th { color: var(--text-muted); font-weight: 600; }
+        .adm-manage-btn { background: #edf2f9; border: 1px solid #ced4da; color: #334155; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; }
+        .adm-manage-btn.save { background: #e6ffed; border-color: #bbf7d0; color: #15803d; }
+        .adm-manage-btn.delete { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+        .table-inline-input { width: 100%; padding: 4px 6px; font-size: 12px; border-radius: 4px; border: 1px solid var(--brand-blue); outline: none; }
 
-        body.is-admin .admin-only {
-            display: block !important;
-        }
-
-        body.is-admin .admin-inline-only {
-            display: inline-flex !important;
-        }
-
-        .fab {
-            position: fixed;
-            bottom: 85px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            background: var(--brand-blue);
-            color: #fff;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 14px rgba(0,122,255,0.4);
-            cursor: pointer;
-            z-index: 800;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--surface-color);
-            border-radius: 24px;
-            padding: 24px;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid var(--border-color);
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-
-        .modal-buttons button {
-            padding: 12px 20px;
-            border-radius: 12px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .calendar-day-label {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 700;
-            padding-bottom: 5px;
-        }
-
-        .calendar-day {
-            padding: 4px 2px;
-            height: 68px;
-            font-size: 13px;
-            border-radius: 12px;
-            background: #f8fafc;
-            cursor: pointer;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-            overflow: hidden;
-        }
-
-        .calendar-day.has-official-event {
-            background: var(--brand-yellow) !important;
-            border: 1px solid var(--brand-yellow-border) !important;
-            font-weight: 700;
-        }
-
-        .calendar-day.selected {
-            border-color: var(--brand-blue);
-            box-shadow: inset 0 0 0 1.5px var(--brand-blue);
-        }
-
-        .official-badge-inline {
-            font-size: 9px;
-            color: #cc7a00;
-            font-weight: 800;
-            margin-top: 1px;
-            background: rgba(251,192,45,0.4);
-            padding: 1px 3px;
-            border-radius: 4px;
-            text-align: center;
-            width: 90%;
-        }
-
-        .absent-list-inline {
-            font-size: 8.5px;
-            color: var(--brand-green);
-            font-weight: bold;
-            text-align: center;
-            margin-top: 2px;
-            width: 92%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background: rgba(52,199,89,0.1);
-            padding: 1px 2px;
-            border-radius: 4px;
-        }
-
-        .calendar-voters-inline {
-            font-size: 9px;
-            color: var(--brand-blue);
-            font-weight: bold;
-            max-width: 90%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-top: 1px;
-            background: rgba(0,122,255,0.06);
-            padding: 1px 2px;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 165px);
-            position: relative;
-        }
-
-        .chat-header-tools {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-
-        .chat-notice-pinned {
-            flex: 1;
-            background: #fff9db;
-            border: 1px solid #ffe066;
-            padding: 8px 14px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #f59f00;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding-bottom: 10px;
-        }
-
-        .chat-date-line {
-            text-align: center;
-            margin: 10px 0;
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .chat-date-line::before,
-        .chat-date-line::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: #e2e8f0;
-        }
-
-        .chat-bubble-row {
-            display: flex;
-            flex-direction: column;
-            max-width: 85%;
-        }
-
-        .chat-bubble-row.mine {
-            align-self: flex-end;
-            align-items: flex-end;
-        }
-
-        .chat-bubble-row.other {
-            align-self: flex-start;
-            align-items: flex-start;
-        }
-
-        .chat-main-block {
-            display: flex;
-            align-items: flex-end;
-            gap: 6px;
-            width: 100%;
-        }
-
-        .chat-bubble-row.mine .chat-main-block {
-            flex-direction: row-reverse;
-        }
-
-        .chat-bubble {
-            padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 13.5px;
-            line-height: 1.45;
-            word-break: break-all;
-        }
-
-        .chat-bubble.mine {
-            background: var(--brand-blue);
-            color: #fff;
-            border-bottom-right-radius: 2px;
-        }
-
-        .chat-bubble.other {
-            background: #ffffff;
-            color: var(--text-color);
-            border-bottom-left-radius: 2px;
-            border: 1px solid var(--border-color);
-        }
-
-        .chat-bubble.whisper {
-            background: #fff3e0 !important;
-            color: #e65100 !important;
-            border: 1px dashed var(--whisper-color) !important;
-        }
-
-        .chat-bubble.whisper-mine {
-            background: var(--whisper-color) !important;
-            color: #fff !important;
-        }
-
-        .chat-read-receipt {
-            font-size: 10px;
-            color: #ff9500;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-
-        .chat-sender {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .chat-control-panel {
-            display: none;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .chat-control-panel.active {
-            display: flex;
-        }
-
-        .btn-inline-ctrl {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .btn-inline-ctrl.delete {
-            color: var(--accent-color);
-        }
-
-        .chat-input-area {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding-top: 10px;
-        }
-
-        .chat-input-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-            font-size: 12.5px;
-        }
-
-        .admin-table th,
-        .admin-table td {
-            padding: 10px 8px;
-            border-bottom: 1px solid var(--border-color);
-            text-align: left;
-        }
-
-        .table-inline-input {
-            width: 100%;
-            padding: 4px 6px;
-            border-radius: 4px;
-            border: 1px solid var(--brand-blue);
-            outline: none;
-        }
-
-        .adm-manage-btn {
-            background: #edf2f9;
-            border: 1px solid #ced4da;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .adm-manage-btn.save {
-            background: #e6ffed;
-            color: #15803d;
-            border-color: #bbf7d0;
-        }
-
-        .adm-manage-btn.delete {
-            background: #fee2e2;
-            color: #b91c1c;
-            border-color: #fca5a5;
-        }
-
-        .dday-badge {
-            background: #ffebee;
-            color: var(--accent-color);
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .whisper-indicator {
-            display: none;
-            background: var(--whisper-color);
-            color: #fff;
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
+        .dday-badge { background: #ffebee; color: var(--accent-color); padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; }
+        .whisper-indicator { display: none; background: var(--whisper-color); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: bold; margin-bottom: 4px; align-self: flex-start; }
     </style>
 </head>
-
 <body>
 
     <div id="splash-screen">
@@ -680,119 +188,777 @@
     <div id="login-screen" class="hidden">
         <div class="login-box">
             <h2>DAILY BAND</h2>
-
             <input type="text" id="login-id" placeholder="아이디">
             <input type="password" id="login-pw" placeholder="비밀번호">
-
             <button class="btn-submit" onclick="handleLogin()">로그인</button>
         </div>
     </div>
 
     <div id="app-container">
-
         <header>
             <h1>DAILY BAND</h1>
-
             <div class="header-right">
                 <div id="user-tag" class="role-badge">조회중...</div>
-
-                <button class="btn-logout" onclick="handleLogout()">
-                    <span class="material-icons">logout</span>
-                </button>
+                <button class="btn-logout" onclick="handleLogout()" title="로그아웃"><span class="material-icons">logout</span></button>
             </div>
         </header>
 
         <main id="main-content">
-
             <section id="page-feed" class="page active">
-
                 <div class="card" style="background: linear-gradient(135deg, #fff5f5, #ffffff); border-color: #ffa8a8;">
-
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-
-                        <span style="font-weight:700; font-size:13px; color:var(--accent-color);">
-                            <span class="material-icons" style="font-size:16px; vertical-align:middle;">workspace_premium</span>
-                            가을 대형 정기 연합 축제
-                        </span>
-
+                        <span style="font-weight:700; font-size:13px; color:var(--accent-color); display:flex; align-items:center; gap:4px;"><span class="material-icons" style="font-size:16px;">workspace_premium</span>가을 대형 정기 연합 가을 축제</span>
                         <span class="dday-badge" id="live-dday-counter">D-45</span>
                     </div>
-
-                    <p style="font-size:13px; font-weight:500; margin-top:6px; color:#334155; padding-left:20px;">
-                        일시: 2026년 07월 02일 목요일 무대 예정
-                    </p>
+                    <p style="font-size:13px; font-weight:500; margin-top:6px; color:#334155; padding-left:20px;">일시: 2026년 07월 02일 목요일 예정 대형 무대</p>
                 </div>
-
                 <div id="feed-list"></div>
-
             </section>
 
             <section id="page-calendar" class="page">
-
                 <div class="card">
-
                     <div class="card-title">📅 5월 정기 합주 캘린더</div>
-
                     <div class="calendar-grid" id="calendar-grid"></div>
-
                     <div id="selected-date-events"></div>
-
                 </div>
-
                 <div class="card admin-only">
-
-                    <div class="card-title" style="color:var(--brand-blue);">
-                        ⚡ 정식 합주 스케줄 발령 (부장용)
-                    </div>
-
-                    <input type="text" id="event-title" placeholder="합주곡 세션 명칭">
-
+                    <div class="card-title" style="color:var(--brand-blue);">⚡ 정식 합주 스케줄 발령 (부장용)</div>
+                    <input type="text" id="event-title" placeholder="합주곡 세션 명칭 (예: 정식합주 - 첫 카피)">
                     <input type="date" id="event-date">
-
                     <input type="text" id="event-time" placeholder="합주 시간 (예: 17:00 ~ 19:00)">
-
-                    <button class="btn-action"
-                        style="width:100%; justify-content:center; background:var(--brand-blue); color:#fff; border:none;"
-                        onclick="addCalendarEvent()">
-
-                        정식 합주 등록
-
-                    </button>
-
+                    <button class="btn-action" style="width:100%; justify-content:center; background:var(--brand-blue); color:#fff; border:none;" onclick="addCalendarEvent()">정식 합주 등록하기</button>
                 </div>
-
             </section>
 
             <section id="page-vote" class="page">
-
                 <div class="card">
-
-                    <div class="card-title">
-                        🎸 다음 정기 합주곡 라인업 투표
-                    </div>
-
+                    <div class="card-title">🎸 다음 정기 합주곡 라인업 투표</div>
                     <div id="vote-list"></div>
-
                 </div>
-
                 <div class="card">
-
-                    <div class="card-title">
-                        ➕ 새로운 경연 선곡 후보 제안
-                    </div>
-
+                    <div class="card-title">➕ 새로운 경연 선곡 후보 제안</div>
                     <input type="text" id="vote-title-input" placeholder="카피곡 명">
-
                     <input type="text" id="vote-artist-input" placeholder="원곡 아티스트">
+                    <button class="btn-action" style="width:100%; justify-content:center; background:var(--brand-blue); color:#fff; border:none;" onclick="addVoteItem()">투표지 등록</button>
+                </div>
+            </section>
 
-                    <button class="btn-action"
-                        style="width:100%; justify-content:center; background:var(--brand-blue); color:#fff; border:none;"
-                        onclick="addVoteItem()">
+            <section id="page-chat" class="page">
+                <div class="chat-container">
+                    <div class="chat-notice-pinned" id="chat-pinned-box">
+                        <span class="material-icons" style="font-size:16px;">campaign</span>
+                        <div id="pinned-notice-text" style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">상단에 고정할 결성 공지사항이 아직 지정되지 않았습니다.</div>
+                    </div>
+                    
+                    <div class="chat-messages" id="chat-box"></div>
+                    
+                    <div class="chat-input-area">
+                        <div class="whisper-indicator" id="whisper-tag"></div>
+                        <div class="chat-input-row">
+                            <input type="text" id="chat-input" placeholder="소통 메시지 입력... (상대 이름 클릭 시 귓속말 연동)" onkeypress="if(event.key==='Enter') sendChat()">
+                            <button class="btn-action" onclick="sendChat()" style="border-radius:14px; background:var(--brand-blue); color:#fff; border:none; padding:0 18px;"><span class="material-icons">send</span></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                        투표지 등록
+            <section id="page-promo" class="page">
+                <div class="card" style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size:48px; margin-bottom:15px;">🔗</div>
+                    <h3 style="font-size:19px; margin-bottom:6px; color:#1e2229;">외부 인스타그램 홍보 초대장</h3>
+                    <p style="color:var(--text-muted); font-size:13px; margin-bottom:25px; line-height:1.45;">달력에 저장된 공식 합주/버스킹 일정이 1개 이상 실존해야만 정상적으로 클립보드 링크가 발급됩니다.</p>
+                    <button class="btn-action" style="margin:0 auto; background:var(--brand-blue); color:#fff; border:none;" onclick="shareInvitation()">초대장 복사 발급</button>
+                </div>
+            </section>
 
-                    </button>
-
+            <section id="page-profile" class="page">
+                <div class="card">
+                    <div class="card-title">👤 내 크루 프로필 셋업</div>
+                    <label style="font-size:12px; color:var(--text-muted); font-weight:bold;">담당 악기 포지션</label>
+                    <input type="text" id="mp-part" placeholder="예: 드럼 퍼커션">
+                    <label style="font-size:12px; color:var(--text-muted); font-weight:bold;">비밀번호 갱신</label>
+                    <input type="password" id="mp-pw" placeholder="바꿀 비밀번호 기재">
+                    <button class="btn-action" style="width:100%; justify-content:center; background:#222; color:#fff;" onclick="updateMyProfile()">프로필 전송 보관</button>
                 </div>
 
+                <div class="card admin-only" style="border-color: var(--accent-color);">
+                    <div class="card-title" style="color:var(--accent-color);">🛡️ 마스터 전용 전체 단원 정보 편집소</div>
+                    <div style="background:#fcf1f1; padding:14px; border-radius:14px; margin-bottom:15px;">
+                        <h4 style="font-size:13px; margin-bottom:10px; color:#5c1e1e;">🆕 신규 단원 계정 발급</h4>
+                        <input type="text" id="adm-new-id" placeholder="아이디">
+                        <input type="password" id="adm-new-pw" placeholder="초기 비밀번호">
+                        <input type="text" id="adm-new-name" placeholder="단원 본명">
+                        <button class="btn-action" style="width:100%; justify-content:center; background:var(--accent-color); color:#fff; border:none;" onclick="createUserByAdmin()">데이터베이스 즉시 추가</button>
+                    </div>
+                    
+                    <h4 style="font-size:13px; color:var(--primary-color); margin-bottom:6px;">📋 전용 크루 명부 (UI 인라인에서 즉각 편집 및 계정 파기 가능)</h4>
+                    <div style="overflow-x: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr><th>성명</th><th>아이디</th><th>비밀번호</th><th>동작 및 관리</th></tr>
+                            </thead>
+                            <tbody id="admin-user-log"></tbody>
+                        </table>
+                    </div>
+                </div>
             </section>
+        </main>
+
+        <div class="fab" id="global-fab" onclick="openModal()"><span class="material-icons">add_comment</span></div>
+
+        <nav>
+            <div class="nav-item active" onclick="switchPage('feed')"><span class="material-icons">dashboard</span>피드방</div>
+            <div class="nav-item" onclick="switchPage('calendar')"><span class="material-icons">today</span>합주스케줄</div>
+            <div class="nav-item" onclick="switchPage('vote')"><span class="material-icons">thumbs_up_down</span>곡투표</div>
+            <div class="nav-item" onclick="switchPage('chat')"><span class="material-icons">forum</span>대화방</div>
+            <div class="nav-item" onclick="switchPage('promo')"><span class="material-icons">rocket_launch</span>공연홍보</div>
+            <div class="nav-item" onclick="switchPage('profile')"><span class="material-icons">settings</span>마이/관제</div>
+        </nav>
+    </div>
+
+    <div class="modal" id="feed-modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom:15px; font-size:17px; color:#1e2229;">새로운 타임라인 피드 공유</h3>
+            <div style="margin-bottom:12px;" class="admin-only">
+                <label style="font-size:13px; color:var(--accent-color); font-weight:700;"><input type="checkbox" id="is-notice-chk"> 📢 중요 공식 공지사항 알림 지정</label>
+            </div>
+            <input type="text" id="feed-title" placeholder="글 헤드라인">
+            <textarea id="feed-content" rows="4" placeholder="내용을 채워주세요."></textarea>
+            <div class="modal-buttons">
+                <button class="btn-close" onclick="closeModal()">취소</button>
+                <button class="btn-save" onclick="saveFeed()">배포</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 데이터 저장소 구성 v7
+        let usersDB = JSON.parse(localStorage.getItem('db_users_v7')) || {
+            "ohminseung": { pw: "minmom!23", name: "오민승", role: "부장", part: "기타 마스터" },
+            "drummer": { pw: "1234", name: "김드럼", role: "부원", part: "드럼" },
+            "bassist": { pw: "1234", name: "이지원", role: "부원", part: "베이스" }
+        };
+
+        let currentUser = JSON.parse(localStorage.getItem('db_logged_user_v7')) || null;
+        
+        let feeds = JSON.parse(localStorage.getItem('db_feeds_v7')) || [
+            { id: 1, title: "📢 데일리 밴드 v7 정식 고도화 이식", content: "멘션, 실시간 읽음 표시, 상단 고정 공지, 귓속말 기능이 탑재되었으며 마스터의 인라인 완전 편집 기능이 적용되었습니다.", date: "2026-05-18", author: "오민승", isNotice: true }
+        ];
+
+        let calendarEvents = JSON.parse(localStorage.getItem('db_events_v7')) || [
+            { id: 101, date: "2026-05-23", title: "정식 합주 - 가을 축제 조율", time: "18:00 ~ 20:00", attendees: ["오민승", "김드럼"] }
+        ];
+        let freeDayVotes = JSON.parse(localStorage.getItem('db_free_votes_v7')) || {};
+        
+        let votes = JSON.parse(localStorage.getItem('db_votes_v7')) || [
+            { id: 201, title: "기억을 걷는 시간", artist: "넬(Nell)", count: 2, voters: ["ohminseung", "drummer"] }
+        ];
+        
+        let chats = JSON.parse(localStorage.getItem('db_chats_v7')) || [
+            { id: 1, senderId: "system", senderName: "운영진", text: "데일리 밴드 메신저 룸 개통 ⚡", timestamp: "2026-05-18" },
+            { id: 2, senderId: "ohminseung", senderName: "오민승", part: "기타 마스터", text: "여러분 반갑습니다! 대화방 오픈 링크 연동 완료.", timestamp: "2026-05-18", readCount: 3 }
+        ];
+
+        let pinnedChatText = localStorage.getItem('db_pinned_chat_v7') || "📢 [공지] 이번 주 토요일 오후 6시 정식 합주 전원 지참 및 카피 필수!";
+        let activeWhisperTargetId = null; // 60. 귓속말 제어 플래그
+        let editingUserId = null; // 인라인 에디팅 플래그
+
+        window.addEventListener('DOMContentLoaded', () => {
+            calculateDday();
+            setTimeout(() => {
+                document.getElementById('splash-screen').classList.add('fade-out');
+                if (currentUser && usersDB[currentUser.id]) {
+                    currentUser = { id: currentUser.id, ...usersDB[currentUser.id] };
+                    applyAuthentication();
+                } else {
+                    document.getElementById('login-screen').classList.remove('hidden');
+                }
+            }, 1000);
+        });
+
+        // 86. 디데이 계산 모듈
+        function calculateDday() {
+            const targetDate = new Date("2026-07-02");
+            const today = new Date("2026-05-18");
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const counterEl = document.getElementById('live-dday-counter');
+            if(counterEl) {
+                counterEl.textContent = diffDays >= 0 ? `D-${diffDays}` : `D+${Math.abs(diffDays)}`;
+            }
+        }
+
+        function handleLogin() {
+            const idVal = document.getElementById('login-id').value.trim();
+            const pwVal = document.getElementById('login-pw').value.trim();
+            if(!idVal || !pwVal) return alert("아이디와 비밀번호를 입력해주세요.");
+
+            if(usersDB[idVal] && usersDB[idVal].pw === pwVal) {
+                currentUser = { id: idVal, ...usersDB[idVal] };
+                localStorage.setItem('db_logged_user_v7', JSON.stringify(currentUser));
+                document.getElementById('login-screen').classList.add('hidden');
+                applyAuthentication();
+            } else {
+                alert("아이디 또는 비밀번호가 불일치합니다.");
+            }
+        }
+
+        function handleLogout() {
+            if(!confirm("로그아웃 하시겠습니까?")) return;
+            localStorage.removeItem('db_logged_user_v7');
+            currentUser = null;
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        function applyAuthentication() {
+            const userTag = document.getElementById('user-tag');
+            userTag.textContent = `${currentUser.name} (${currentUser.part || '세션'})`;
+            
+            if(currentUser.role === "부장") {
+                userTag.classList.add('admin');
+                document.body.classList.add('is-admin');
+            } else {
+                userTag.classList.remove('admin');
+                document.body.classList.remove('is-admin');
+            }
+
+            document.getElementById('mp-part').value = currentUser.part || "";
+            document.getElementById('mp-pw').value = currentUser.pw;
+
+            initCoreLogic();
+        }
+
+        function initCoreLogic() {
+            renderFeeds();
+            renderCalendar();
+            renderVotes();
+            renderChats();
+            renderAdminBackoffice();
+            document.getElementById('pinned-notice-text').textContent = pinnedChatText;
+            showSelectedDateEvents(new Date().toISOString().split('T')[0]);
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            if(pageId === 'feed') document.getElementById('global-fab').style.display = 'flex';
+            else document.getElementById('global-fab').style.display = 'none';
+            if(pageId === 'chat') { scrollChatBottom(); clearWhisper(); }
+        }
+
+        // 피드 게시판 모듈 (+ 관리자용 삭제 권한 전면 이식)
+        function renderFeeds() {
+            const list = document.getElementById('feed-list'); list.innerHTML = "";
+            feeds.sort((a,b) => b.id - a.id).sort((a,b) => (b.isNotice ? 1 : 0) - (a.isNotice ? 1 : 0)).forEach(post => {
+                const card = document.createElement('div'); card.className = 'card';
+                if(post.isNotice) card.style.borderColor = "var(--accent-color)";
+                
+                // 마스터용 강제 삭제 아이콘 노출 제어
+                const deleteBtnHtml = (currentUser.role === "부장") 
+                    ? `<button onclick="deleteFeed(${post.id})" style="background:none; border:none; color:var(--accent-color); cursor:pointer;"><span class="material-icons" style="font-size:18px;">delete</span></button>` 
+                    : '';
+
+                card.innerHTML = `
+                    <div class="card-title">
+                        <span>${post.title}</span>
+                        ${deleteBtnHtml}
+                    </div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">${post.date} · ${post.author}</div>
+                    <div style="font-size:13.5px; white-space:pre-wrap; line-height:1.5;">${post.content}</div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function openModal() { document.getElementById('feed-modal').classList.add('active'); }
+        function closeModal() { document.getElementById('feed-modal').classList.remove('active'); }
+
+        function saveFeed() {
+            const title = document.getElementById('feed-title').value.trim();
+            const content = document.getElementById('feed-content').value.trim();
+            const isNotice = document.getElementById('is-notice-chk').checked;
+            if(!title || !content) return;
+
+            feeds.push({
+                id: Date.now(),
+                title: isNotice ? `📢 [공지] ${title}` : title,
+                content: content,
+                date: "2026-05-18",
+                author: currentUser.name,
+                isNotice: currentUser.role === '부장' ? isNotice : false
+            });
+            localStorage.setItem('db_feeds_v7', JSON.stringify(feeds));
+            closeModal(); renderFeeds();
+            document.getElementById('feed-title').value = "";
+            document.getElementById('feed-content').value = "";
+        }
+
+        function deleteFeed(id) {
+            if(!confirm("이 게시글을 마스터 권한으로 즉시 파기하시겠습니까?")) return;
+            feeds = feeds.filter(f => f.id !== id);
+            localStorage.setItem('db_feeds_v7', JSON.stringify(feeds));
+            renderFeeds();
+        }
+
+        // 달력 모듈
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = "";
+            const labels = ['일','월','화','수','목','금','토'];
+            labels.forEach(l => {
+                const lbl = document.createElement('div'); lbl.className = "calendar-day-label"; lbl.textContent = l; grid.appendChild(lbl);
+            });
+
+            for(let i=0; i<5; i++) grid.appendChild(document.createElement('div'));
+
+            for(let d=1; d<=31; d++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = "calendar-day";
+                const dateStr = `2026-05-${d < 10 ? '0' + d : d}`;
+                
+                const numSpan = document.createElement('span');
+                numSpan.textContent = d;
+                dayDiv.appendChild(numSpan);
+
+                const isOfficial = calendarEvents.some(e => e.date === dateStr);
+                if(isOfficial) {
+                    dayDiv.classList.add('has-official-event');
+                    const tag = document.createElement('div');
+                    tag.className = "official-badge-inline";
+                    tag.textContent = "⚡ 합주 날";
+                    dayDiv.appendChild(tag);
+                } else {
+                    const dayVoters = freeDayVotes[dateStr] || [];
+                    if(dayVoters.length > 0) {
+                        const inlineList = document.createElement('div');
+                        inlineList.className = "calendar-voters-inline";
+                        inlineList.textContent = dayVoters.join(',');
+                        dayDiv.appendChild(inlineList);
+                    }
+                }
+
+                dayDiv.onclick = () => {
+                    document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('selected'));
+                    dayDiv.classList.add('selected');
+                    showSelectedDateEvents(dateStr);
+                };
+                grid.appendChild(dayDiv);
+            }
+        }
+
+        function showSelectedDateEvents(dateStr) {
+            const container = document.getElementById('selected-date-events');
+            container.innerHTML = `<div style="font-weight:700; font-size:13px; margin-bottom:10px; color:var(--brand-blue); border-bottom:1px solid var(--border-color); padding-bottom:4px;">📍 ${dateStr} 합주 구성 현황</div>`;
+            
+            const matched = calendarEvents.filter(e => e.date === dateStr);
+            const freeVoters = freeDayVotes[dateStr] || [];
+
+            if(matched.length === 0) {
+                container.innerHTML += `
+                    <p style="font-size:12.5px; color:var(--text-muted);">지정된 정식 합주가 없습니다.</p>
+                    <div class="free-voters-box">
+                        <div style="font-weight:700; font-size:12px; margin-bottom:4px;">🙋 참여 가능 선언 멤버</div>
+                        <div style="color:var(--brand-blue); font-weight:700; font-size:13px; margin-bottom:8px;">${freeVoters.join(', ') || '투표 없음'}</div>
+                        <button class="btn-action" style="font-size:12px; width:100%; justify-content:center; background:#fff;" onclick="voteFreeDay('${dateStr}')">👍 내 스케줄 가능 여부 체크</button>
+                    </div>
+                `;
+            } else {
+                matched.forEach(ev => {
+                    const attending = ev.attendees.includes(currentUser.name);
+                    container.innerHTML += `
+                        <div style="background:#fffdb5; padding:12px; border-radius:12px; margin-bottom:8px; border:1px solid var(--brand-yellow-border);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="font-weight:700; font-size:13px; color:#b78103;">👑 [정식 합주 공인 일자]</div>
+                                <button class="admin-inline-only" onclick="deleteCalendarEvent(${ev.id})" style="background:none; border:none; color:var(--accent-color); cursor:pointer; font-weight:bold; font-size:11px;">스케줄 삭제</button>
+                            </div>
+                            <div style="font-weight:700; font-size:14px; margin-top:4px;">${ev.title}</div>
+                            <div style="font-size:12px; color:var(--text-color); margin:4px 0;">⏰ 시간: ${ev.time}</div>
+                            <div style="background:#ffffff; padding:6px; border-radius:6px; font-size:12px; border:1px solid #e4e9f2; margin-bottom:8px;">참석 멤버: ${ev.attendees.join(', ')}</div>
+                            <button class="btn-action" style="width:100%; justify-content:center; font-size:12px; background:#fff;" onclick="toggleEventAttendance(${ev.id})">${attending?'❌ 불참 선언':'🙋 참전 확정'}</button>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function voteFreeDay(dateStr) {
+            if(!freeDayVotes[dateStr]) freeDayVotes[dateStr] = [];
+            const idx = freeDayVotes[dateStr].indexOf(currentUser.name);
+            if(idx > -1) freeDayVotes[dateStr].splice(idx, 1);
+            else freeDayVotes[dateStr].push(currentUser.name);
+            localStorage.setItem('db_free_votes_v7', JSON.stringify(freeDayVotes));
+            renderCalendar(); showSelectedDateEvents(dateStr);
+        }
+
+        function addCalendarEvent() {
+            const title = document.getElementById('event-title').value.trim();
+            const date = document.getElementById('event-date').value;
+            const time = document.getElementById('event-time').value.trim();
+            if(!title || !date || !time) return alert("데이터 누락");
+
+            calendarEvents.push({ id: Date.now(), date, title, time, attendees: [currentUser.name] });
+            localStorage.setItem('db_events_v7', JSON.stringify(calendarEvents));
+            renderCalendar(); showSelectedDateEvents(date);
+        }
+
+        function deleteCalendarEvent(id) {
+            if(!confirm("이 공인 합주 일정을 영구 취소합니까?")) return;
+            calendarEvents = calendarEvents.filter(e => e.id !== id);
+            localStorage.setItem('db_events_v7', JSON.stringify(calendarEvents));
+            renderCalendar(); showSelectedDateEvents("2026-05-18");
+        }
+
+        function toggleEventAttendance(id) {
+            const ev = calendarEvents.find(e => e.id === id); if(!ev) return;
+            const idx = ev.attendees.indexOf(currentUser.name);
+            if(idx > -1) ev.attendees.splice(idx, 1);
+            else ev.attendees.push(currentUser.name);
+            localStorage.setItem('db_events_v7', JSON.stringify(calendarEvents));
+            showSelectedDateEvents(ev.date);
+        }
+
+        // 곡 투표 시스템 (+ 후보 삭제 기능 및 52. 부장 전용 대화방 공유 탑재)
+        function renderVotes() {
+            const list = document.getElementById('vote-list'); list.innerHTML = "";
+            votes.sort((a,b) => b.count - a.count).forEach(item => {
+                const hasVoted = item.voters.includes(currentUser.id);
+                const itemDiv = document.createElement('div'); itemDiv.className = "vote-item";
+                
+                // 마스터 전용 삭제 및 공유 컴포넌트 추가
+                const masterControls = (currentUser.role === "부장")
+                    ? `<button class="btn-action" style="font-size:11px; background:#e6f4ea; color:#137333;" onclick="shareVoteToChat(${item.id})">대화방 공유</button>
+                       <button class="btn-action" style="font-size:11px; background:#fce8e6; color:#c5221f;" onclick="deleteVoteItem(${item.id})">후보 삭제</button>`
+                    : '';
+
+                itemDiv.innerHTML = `
+                    <div class="vote-info">
+                        <h4>${item.title}</h4>
+                        <p>${item.artist} (<b style="color:var(--brand-blue);">${item.count}표</b>)</p>
+                    </div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        ${masterControls}
+                        <button class="btn-action" onclick="castVote(${item.id})" style="color:${hasVoted?'var(--brand-blue)':''}; font-weight:bold;">${hasVoted?'완료':'투표'}</button>
+                    </div>
+                `;
+                list.appendChild(itemDiv);
+            });
+        }
+
+        function addVoteItem() {
+            const t = document.getElementById('vote-title-input').value.trim();
+            const a = document.getElementById('vote-artist-input').value.trim();
+            if(!t || !a) return alert("입력값 공백");
+            votes.push({ id: Date.now(), title: t, artist: a, count: 0, voters: [] });
+            localStorage.setItem('db_votes_v7', JSON.stringify(votes));
+            renderVotes();
+            document.getElementById('vote-title-input').value = "";
+            document.getElementById('vote-artist-input').value = "";
+        }
+
+        function castVote(id) {
+            const item = votes.find(v => v.id === id); const idx = item.voters.indexOf(currentUser.id);
+            if(idx > -1) { item.voters.splice(idx,1); item.count--; }
+            else { item.voters.push(currentUser.id); item.count++; }
+            localStorage.setItem('db_votes_v7', JSON.stringify(votes));
+            renderVotes();
+        }
+
+        function deleteVoteItem(id) {
+            if(!confirm("이 선곡 후보를 리스트에서 즉시 제거하겠습니까?")) return;
+            votes = votes.filter(v => v.id !== id);
+            localStorage.setItem('db_votes_v7', JSON.stringify(votes));
+            renderVotes();
+        }
+
+        // 52. 부장 전용 곡 투표 정보 대화방 연동 발송 브릿지
+        function shareVoteToChat(id) {
+            const item = votes.find(v => v.id === id); if(!item) return;
+            chats.push({
+                id: Date.now(),
+                senderId: "system",
+                senderName: "운영진",
+                text: `📊 [부장 선곡 투표 공유] 현재 후보곡 '${item.title} - ${item.artist}'가 총 ${item.count}표를 획득 중입니다. 단원분들은 투표창에서 참여해주세요!`,
+                timestamp: "2026-05-18"
+            });
+            localStorage.setItem('db_chats_v7', JSON.stringify(chats));
+            alert("해당 투표 스코어가 실시간 대화방 피드로 전송 연동되었습니다.");
+        }
+
+
+        // 💬 고도화 대화방 핵심 가동 엔진
+        function renderChats() {
+            const box = document.getElementById('chat-box'); box.innerHTML = "";
+            const totalMembers = Object.keys(usersDB).length; // 읽음 처리를 위한 분모 산출
+            let lastDateStr = "";
+
+            chats.forEach(c => {
+                // 56. 날짜 구분선 출력 프로세스
+                if(c.timestamp && c.timestamp !== lastDateStr) {
+                    const dateLine = document.createElement('div');
+                    dateLine.className = "chat-date-line";
+                    dateLine.textContent = c.timestamp;
+                    box.appendChild(dateLine);
+                    lastDateStr = c.timestamp;
+                }
+
+                if(c.senderId === "system") {
+                    const bubble = document.createElement('div');
+                    bubble.className = "chat-bubble system"; bubble.textContent = c.text;
+                    box.appendChild(bubble);
+                } else {
+                    // 60. 귓속말 수신 조건 확인 (나에게 왔거나 내가 보낸 귓속말만 노출)
+                    if(c.isWhisper && c.senderId !== currentUser.id && c.whisperTarget !== currentUser.id) {
+                        return; // 타인의 귓속말인 경우 투명 폐기 처리
+                    }
+
+                    const isMine = c.senderId === currentUser.id;
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = `chat-bubble-row ${isMine ? 'mine' : 'other'}`;
+                    
+                    // 46. 멘션 처리 데이터 정제
+                    let processText = c.text;
+                    if(processText.includes(`@${currentUser.name}`)) {
+                        processText = processText.replace(`@${currentUser.name}`, `<span class="mention-badge">@${currentUser.name}</span>`);
+                    }
+
+                    // 48. 읽음 표시 숫자 가상 핸들링
+                    const simulatedReaders = c.readCount ? c.readCount : Math.min(2, totalMembers);
+                    const readReceiptText = (simulatedReaders >= totalMembers) ? "전원읽음" : `${totalMembers - simulatedReaders}`;
+
+                    // 60. 귓속말 테마 분기 처리
+                    let bubbleClass = isMine ? 'mine' : 'other';
+                    if(c.isWhisper) {
+                        bubbleClass += isMine ? ' whisper whisper-mine' : ' whisper';
+                    }
+
+                    rowDiv.innerHTML = `
+                        ${!isMine ? `<span class="chat-sender" onclick="setWhisperMode('${c.senderId}', '${c.senderName}')">${c.senderName} (${c.part || '크루'}) 💬</span>` : ''}
+                        <div class="chat-main-block">
+                            <div class="chat-bubble ${bubbleClass}">
+                                ${c.isWhisper ? `<b style="font-size:11px; display:block;">🔒 귓속말</b>` : ''}
+                                ${processText}
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:${isMine?'flex-end':'flex-start'}">
+                                <span class="chat-read-receipt">${readReceiptText}</span>
+                            </div>
+                            ${isMine ? `
+                                <button class="chat-more-btn" onclick="toggleInlinePanel(${c.id})">
+                                    <span class="material-icons" style="font-size:15px;">more_vert</span>
+                                </button>
+                            ` : ''}
+                        </div>
+                        <div class="chat-control-panel" id="ctrl-panel-${c.id}">
+                            <button class="btn-inline-ctrl" onclick="inlineEditChatText(${c.id})">수정</button>
+                            <button class="btn-inline-ctrl delete" onclick="inlineCancelChat(${c.id})">취소</button>
+                        </div>
+                    `;
+                    box.appendChild(rowDiv);
+                }
+            });
+            scrollChatBottom();
+        }
+
+        // 60. 클릭 시 귓속말 즉시 전환 타겟 지정 브릿지
+        function setWhisperMode(targetId, targetName) {
+            activeWhisperTargetId = targetId;
+            const tag = document.getElementById('whisper-tag');
+            tag.textContent = `🔒 ${targetName} 님에게 보내는 귓속말 모드 활성화 중 (해제하려면 터치)`;
+            tag.style.display = "block";
+            tag.onclick = clearWhisper;
+            document.getElementById('chat-input').focus();
+        }
+
+        function clearWhisper() {
+            activeWhisperTargetId = null;
+            document.getElementById('whisper-tag').style.display = "none";
+        }
+
+        function toggleInlinePanel(chatId) {
+            const panel = document.getElementById(`ctrl-panel-${chatId}`); if(panel) panel.classList.toggle('active');
+        }
+
+        // 수정/삭제 시 prompt를 전면 기각하기 위해 input 처리 또는 인라인 팝업 보완
+        function inlineEditChatText(chatId) {
+            const msg = chats.find(c => c.id === chatId); if(!msg) return;
+            const filteredOld = msg.text.replace(" (수정됨)", "");
+            const next = prompt("메시지 수정:", filteredOld); // 메신저 수정 창 예외 유지
+            if(next === null || next.trim() === "") return;
+            msg.text = next.trim() + " (수정됨)";
+            localStorage.setItem('db_chats_v7', JSON.stringify(chats));
+            renderChats();
+        }
+
+        function inlineCancelChat(chatId) {
+            chats = chats.filter(c => c.id !== chatId);
+            localStorage.setItem('db_chats_v7', JSON.stringify(chats));
+            renderChats();
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input'); const txt = input.value.trim(); if(!txt) return;
+            
+            // 49. 부장 한정 메시지가 [/공지]로 시작할 경우 띠 배너 교체 연동
+            if(currentUser.role === "부장" && txt.startsWith("/공지 ")) {
+                const newNotice = txt.replace("/공지 ", "");
+                pinnedChatText = `📢 [공지] ${newNotice}`;
+                localStorage.setItem('db_pinned_chat_v7', pinnedChatText);
+                document.getElementById('pinned-notice-text').textContent = pinnedChatText;
+                input.value = "";
+                return;
+            }
+
+            let whisperCheck = activeWhisperTargetId !== null;
+            let finalTarget = activeWhisperTargetId;
+            let cleanText = txt;
+
+            // 텍스트 명령어로도 귓속말 가동 가능 하이브리드 필터
+            if(txt.startsWith("/")) {
+                const parts = txt.split(" ");
+                const possibleId = parts[0].substring(1);
+                if(usersDB[possibleId]) {
+                    whisperCheck = true;
+                    finalTarget = possibleId;
+                    cleanText = parts.slice(1).join(" ");
+                }
+            }
+
+            chats.push({
+                id: Date.now(),
+                senderId: currentUser.id,
+                senderName: currentUser.name,
+                part: currentUser.part || "세션",
+                text: cleanText,
+                timestamp: "2026-05-18",
+                isWhisper: whisperCheck,
+                whisperTarget: finalTarget,
+                readCount: whisperCheck ? 2 : 1
+            });
+
+            localStorage.setItem('db_chats_v7', JSON.stringify(chats));
+            renderChats(); input.value = "";
+            clearWhisper();
+        }
+
+        function scrollChatBottom() { const box = document.getElementById('chat-box'); box.scrollTop = box.scrollHeight; }
+
+        function shareInvitation() {
+            if(calendarEvents.length === 0) return alert("공식 일정이 비어있어 초대장이 발급되지 않습니다.");
+            navigator.clipboard.writeText(`🎸 [DAILY BAND] 공식 합주에 초대합니다.\n본방 링크: ${window.location.href}`).then(() => alert("홍보 클립보드가 자동 복사되었습니다."));
+        }
+
+        function updateMyProfile() {
+            const p = document.getElementById('mp-part').value.trim();
+            const pw = document.getElementById('mp-pw').value.trim();
+            usersDB[currentUser.id].part = p; usersDB[currentUser.id].pw = pw;
+            localStorage.setItem('db_users_v7', JSON.stringify(usersDB));
+            currentUser.part = p; currentUser.pw = pw;
+            localStorage.setItem('db_logged_user_v7', JSON.stringify(currentUser));
+            alert("동기화 완수"); applyAuthentication();
+        }
+
+        function createUserByAdmin() {
+            const id = document.getElementById('adm-new-id').value.trim();
+            const pw = document.getElementById('adm-new-pw').value.trim();
+            const name = document.getElementById('adm-new-name').value.trim();
+            if(!id || !pw || !name) return alert("필드를 빠짐없이 기재해주십시오.");
+
+            usersDB[id] = { pw: pw, name: name, role: "부원", part: "미정 세션" };
+            localStorage.setItem('db_users_v7', JSON.stringify(usersDB));
+            alert(`단원 [${name}] 계정이 정상 생성되었습니다.`);
+            document.getElementById('adm-new-id').value = "";
+            document.getElementById('adm-new-pw').value = "";
+            document.getElementById('adm-new-name').value = "";
+            renderAdminBackoffice();
+        }
+
+
+        // 🛡️ 마스터 전용 인라인 테이블 실시간 제어소 (완전 팝업 기각 구조)
+        function renderAdminBackoffice() {
+            const tbody = document.getElementById('admin-user-log'); if(!tbody) return; tbody.innerHTML = "";
+            
+            Object.keys(usersDB).forEach(id => {
+                const u = usersDB[id]; const tr = document.createElement('tr');
+                const isEditing = (editingUserId === id);
+
+                if(isEditing) {
+                    // 수정을 누르면 인라인 입력 폼으로 변신
+                    tr.innerHTML = `
+                        <td><input type="text" id="inline-edit-name" class="table-inline-input" value="${u.name}"></td>
+                        <td><input type="text" id="inline-edit-id" class="table-inline-input" value="${id}"></td>
+                        <td><input type="text" id="inline-edit-pw" class="table-inline-input" value="${u.pw}"></td>
+                        <td>
+                            <button class="adm-manage-btn save" onclick="saveInlineUserChanges('${id}')">저장</button>
+                            <button class="adm-manage-btn" onclick="cancelInlineEdit()">취소</button>
+                        </td>
+                    `;
+                } else {
+                    // 기본 정적 명부 행 출력 + 계정 삭제 단추 배치 완료
+                    tr.innerHTML = `
+                        <td><b>${u.name}</b></td>
+                        <td><span style="color:var(--brand-blue);">${id}</span></td>
+                        <td><code>${u.pw}</code></td>
+                        <td>
+                            <button class="adm-manage-btn" onclick="activateInlineEdit('${id}')">전체 수정</button>
+                            ${u.role !== '부장' ? `<button class="adm-manage-btn delete" onclick="deleteUserAccount('${id}')">계정 삭제</button>` : ''}
+                        </td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        function activateInlineEdit(id) {
+            editingUserId = id;
+            renderAdminBackoffice();
+        }
+
+        function cancelInlineEdit() {
+            editingUserId = null;
+            renderAdminBackoffice();
+        }
+
+        // 팝업 없이 현장 테이블 인라인 데이터 취합 후 DB 강제 세팅 세션
+        function saveInlineUserChanges(oldId) {
+            const newName = document.getElementById('inline-edit-name').value.trim();
+            const newId = document.getElementById('inline-edit-id').value.trim();
+            const newPw = document.getElementById('inline-edit-pw').value.trim();
+
+            if(!newName || !newId || !newPw) return alert("필드값을 비워둘 수 없습니다.");
+
+            const oldUserRole = usersDB[oldId].role;
+            const oldUserPart = usersDB[oldId].part || "세션";
+
+            // 아이디 변동 시 안전 키값 스와핑
+            if(newId !== oldId) {
+                delete usersDB[oldId];
+            }
+
+            usersDB[newId] = {
+                pw: newPw,
+                name: newName,
+                role: oldUserRole,
+                part: oldUserPart
+            };
+
+            localStorage.setItem('db_users_v7', JSON.stringify(usersDB));
+            editingUserId = null;
+            alert("부원 정보가 인라인에서 실시간으로 강제 변경 및 저장 완료되었습니다.");
+            renderAdminBackoffice();
+            applyAuthentication();
+        }
+
+        // 관리자 전용 완벽 계정 제명 영구삭제 처리
+        function deleteUserAccount(id) {
+            if(usersDB[id].role === "부장") return alert("마스터 본인의 계정은 파기할 수 없습니다.");
+            if(!confirm(`⚠️ 정말로 [${usersDB[id].name}] 부원의 계정을 명부에서 완전히 지우고 삭제하시겠습니까?`)) return;
+            
+            delete usersDB[id];
+            localStorage.setItem('db_users_v7', JSON.stringify(usersDB));
+            alert("해당 부원의 접근 계정이 완전히 파기되었습니다.");
+            renderAdminBackoffice();
+        }
+    </script>
+</body>
+</html>
